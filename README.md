@@ -4,6 +4,6 @@ This is a Python implementation of a Hungarian card game called Rablrömi, or rat
 
 The idea is to implement it in Python, with a web interface in HTML/JS to allow online play, both in real time and as a correspondance game (although real time, with some kind of VOIP solution like Discord is probably the most fun).
 
-The web interface uses card designs from[Adrian Kennard](https://www.me.uk/cards/), which are in the public domain. 
+The web interface uses card designs from [Adrian Kennard](https://www.me.uk/cards/), which are in the public domain. 
 
 More details and instructions are coming soon...
