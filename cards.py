@@ -50,10 +50,26 @@ class Card:
     suit = Card.long_suits[self.suit]
     rank = Card.rank_name(self.rank)
     
+    short_rank = rank
+    if self.rank > 10:
+      short_rank = rank[0]
+    elif self.rank == 1:
+      short_rank = '1'
+    
     if suit == 'joker':
-      return f"joker number {rank}"
+      s = "joker: "
     else:
-      return f"{rank} of {suit}"
+      s = f"{short_rank}{self.suit}: "
+    
+    if suit == 'joker':
+      s += f"joker number {self.rank}"
+    else:
+      s += f"{rank} of {suit}"
+    
+    if self.owner is not None:
+      s += f" ({self.owner})"
+    
+    return s
     
 class Deck:
   def __init__(self, jokers=4):

@@ -1,4 +1,5 @@
 from itertools import cycle
+import json
 
 from cards import Card, Deck
 
@@ -154,28 +155,128 @@ def validate_chain(cards, jokers):
   
   
 class Game:
-  def __init__(self, player_ids):
+  def __init__(self, player_ids, is_local=False):
     self.player_ids = player_ids
     self.turns = cycle(self.player_ids)
     
-    self.board = dict()
-    # the keys are pile IDs, and the values are Piles. Pile IDs can be numbers or the string "tmp" for cards that are loose on the table
-    self.board['tmp'] = list()
+    self.piles = dict()
+    # the keys are pile IDs, and the values are Piles. Pile IDs can be numbers
+    self.deck = Deck()
     
+    self.hands = dict() # maps player IDs to a list of cards in the hand
+    
+    for player_id in player_ids:
+      self.hands[player_id] = self.deck.draw_hand(player_id)
+      
+    self.turn = self.next_turn()
+    
+    self.is_local = is_local
+    
+  def next_pile_id(self):
+    if self.piles:
+      pile_ids = list(self.piles.keys())
+      return max(pile_ids) + 1
+    else:
+      return 1
+      
   def next_turn(self):
     return next(self.turns) # a player ID
   
-  def move_card(from_id, to_id, card):
-    from_list = self.board[from_id]
-    to_list = self.board[to_id]
+  def find_card(self, short, player_id):
+    hand = self.hands[player_id]
+    for card in hand:
+      if str(card).startswith(short):
+        return card
+    return None
+  
+  def place_card(self, card, player_id, to_id=None):
+    # to_id == None means create a new pile
+    
+    if to_id is None:
+      to_id = self.next_pile_id()
+    
+    if not to_id in self.piles:
+      self.piles[to_id] = Pile()
+    
+    to_pile = self.piles[to_id]
+    to_pile.add(card)
+    
+    self.hands[player_id].remove(card)
+  
+  def move_card(card, from_id, to_id=None):
+    # to_id == None means create a new pile
+    
+    from_pile = self.piles[from_id]
+    
+    if to_id is None:
+      to_id = self.next_pile_id()
+    
+    if not to_id in self.piles:
+      self.piled[to_id] = Pile()
+      
+    to_pile = self.piles[to_id]
     
     if not card in from_list:
       raise ValueError(f"Card {card} not in list with ID {from_id}")
     
-    from_list.remove(card)
-    to_list.append(card)
-    to_list.sort() # make sure chains are in correct order
+    from_pile.remove(card)
+    to_pile.add(card)
+  
+  def finish(self):
+    for pile_id, pile in self.piles.items():
+      if not pile.validate():
+        return False, None
     
+    # Now, all your cards belong to the table!
+    has_played = False
+    for pile_id, pile in self.piles.items():
+      for card in pile.cards:
+        if card.owner == self.turn:
+          card.owner = None
+          has_played = True
+    
+    if not has_played:
+      card = self.deck.draw()
+      self.hands[self.turn].append(card)
+    else:
+      card = None
+    
+    self.turn = self.next_turn()
+    return True, card
+  
+  def retreat(self):
+    # the player wants all their cards back
+    for pile_id, pile in self.piles.items():
+      for card in pile.cards:
+        if card.owner == self.turn:
+          pile.remove(card)
+          self.hands[self.turn].append(card)
+  
+  def json(self):
+    # get a json summary of the state of the game
+    obj = dict()
+  
+    obj['players'] = self.player_ids
+  
+    obj['hands'] = dict()
+    for player_id in self.player_ids:
+      obj['hands'][player_id] = [str(card) for card in self.hands[player_id]]
+      
+    obj['piles'] = dict()
+    for pile_id, pile in self.piles.items():
+      if pile.validate():
+        valid = 'VALID'
+      else:
+        valid = 'BAD!!'
+      obj['piles'][pile_id] = f"{pile_id}:{valid}:{pile}"
+    
+    obj['turn'] = self.turn
+    
+    indent = None
+    if self.is_local:
+      indent = 2
+    
+    return json.dumps(obj, indent=indent)
     
     
 
