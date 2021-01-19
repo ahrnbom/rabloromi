@@ -9,6 +9,7 @@ class Card:
   max_rank = 13
 
   long_suits = {'c': 'clubs', 'd': 'diamonds', 'h': 'hearts', 's': 'spades', 'j': 'joker'}
+  suit_values = {'s': 0, 'd': 100, 'h': 200, 'c': 300}
   
   @staticmethod
   def rank_name(rank):
@@ -38,6 +39,13 @@ class Card:
     # when a card is played but the turn isn't finished, we need to keep track of who
     # it belongs to. Setting it to None means that it either belongs in the deck or the table
     
+  def sorting_value(self):
+    if self.suit == 'j':
+      raise ValueError("Sorting value of jokers not defined, it depends on context")
+    
+    return Card.suit_values[self.suit] + self.rank
+    
+  
   def __repr__(self):
     suit = Card.long_suits[self.suit]
     rank = Card.rank_name(self.rank)
