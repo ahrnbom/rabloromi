@@ -66,6 +66,7 @@ class Pile:
           self.cards.remove(ace)
           ace.rank = 14
           self.cards.append(ace)
+          print(self)
           if validate_chain(self.cards, jokers):
             ace.rank = 1
             return True
@@ -90,6 +91,15 @@ class Pile:
           
     self.cards.extend(jokers)      
     return False
+  
+  def __repr__(self):
+    if not self.cards:
+      return "Empty pile"
+    
+    s = 'Pile:'
+    for card in self.cards:
+      s += f"{card},"
+    return s[:-1]
 
 
 def validate_chain(cards, jokers):
@@ -104,16 +114,15 @@ def validate_chain(cards, jokers):
   in the chain should be filled with jokers, if possible. 
   """
   
-  n_jokers = len(jokers)
-  
   ranks = [x.rank for x in cards]
   for rank in range(min(ranks), max(ranks)+1):
     count = len([r for r in ranks if r==rank])
     if count > 1:
       # bail
-      for joker in jokers:
-        if joker in cards:
-          cards.remove(joker)
+      for card in cards:
+        if card.suit == 'j':
+          cards.remove(card)
+          jokers.append(card)
       return False
     elif count == 0:
       # use a joker, if we have one
@@ -123,11 +132,24 @@ def validate_chain(cards, jokers):
         cards.insert(index, joker)
       else:
         # bail
-        for joker in jokers:
-          if joker in cards:
-            cards.remove(joker)
+        for card in cards:
+          if card.suit == 'j':
+            cards.remove(card)
+            jokers.append(card)
         return False
-        
+  
+  """
+  We should now put back any remaining jokers
+  Here, we just check if the top ace exists, and if so, jokers are placed at
+  the beginning. But technically, there could be situations where this isn't expected,
+  like if you have a chain with [jack, queen, king, joker, joker] in which case
+  you'd expect one joker in the front and one in the back, but I can't think of
+  an easy way to take this into account
+  """ 
+  if max(ranks) == 14:
+    cards[0:0] = jokers
+  else:
+    cards.extend(jokers)
   return True
   
   
@@ -159,4 +181,3 @@ class Game:
 
 if __name__ == "__main__":
   print("This is not intended to be run as a script. You probably want to run server.py, to play online, or local.py, to play in the terminal")
-  
