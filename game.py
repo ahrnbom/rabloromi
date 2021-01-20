@@ -191,6 +191,18 @@ class Game:
         return card
     return None
   
+  def find_card_in_pile(self, short, pile_id):
+    if not pile_id in self.piles:
+      return None
+    
+    pile = self.piles[pile_id]
+    
+    for card in pile.cards:
+      if str(card).split(':')[0] == short:
+        return card
+    
+    return None
+  
   def place_card(self, card, player_id, to_id=None):
     # to_id == None means create a new pile
     
@@ -205,7 +217,7 @@ class Game:
     
     self.hands[player_id].remove(card)
   
-  def move_card(card, from_id, to_id=None):
+  def move_card(self, card, from_id, to_id=None):
     # to_id == None means create a new pile
     
     from_pile = self.piles[from_id]
@@ -214,11 +226,11 @@ class Game:
       to_id = self.next_pile_id()
     
     if not to_id in self.piles:
-      self.piled[to_id] = Pile()
+      self.piles[to_id] = Pile()
       
     to_pile = self.piles[to_id]
     
-    if not card in from_list:
+    if not card in from_pile.cards:
       raise ValueError(f"Card {card} not in list with ID {from_id}")
     
     from_pile.remove(card)

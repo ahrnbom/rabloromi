@@ -28,33 +28,64 @@ def main():
     if action == 'help':
       print('Available actions:')
       print("""
-      - 'play CARD_NAME'          - plays that card on a new pile
-      - 'play CARD_NAME PILE_ID'  - plays that card on a given pile
-      - 'view'                    - display the state of the game
-      - 'keso'                    - finishes your turn
-      - 'retreat'                 - take back all your cards
-      - 'exit'                    - close the game
+    - 'play CARD_NAME'                  - plays that card on a new pile
+    - 'play CARD_NAME PILE_ID'          - plays that card on a given pile
+    - 'move CARD_NAME FROM_PILE TO_PILE - move a card from one pile to another
+    - 'view'                            - display the state of the game
+    - 'keso'                            - finishes your turn
+    - 'retreat'                         - take back all your cards
+    - 'exit'                            - close the game
       
-      Note that CARD_NAME should be on the following format:
-      2d     - 2 of diamonds
-      10c    - 10 of clubs
-      js     - jack of spades
-      1h     - ace of hearts
-      joker  - joker
+    Note that CARD_NAME should be on the following format:
+    2d     - 2 of diamonds
+    10c    - 10 of clubs
+    js     - jack of spades
+    1h     - ace of hearts
+    joker  - joker
       """)
     elif action == 'view':
       print(game.json())
     elif action.startswith('play'):
       actions = action.split(' ')
       card = game.find_card(actions[1], game.turn)
+      
       if card is None:
         print("Could not find the card you specified")
       else:
         if len(actions) > 2:
-          pile_id = int(actions[2])
+          try:
+            pile_id = int(actions[2])
+          except:
+            print(f"{actions[2]} is not a valid pile number")
         else:
           pile_id = None
         game.place_card(card, game.turn, pile_id)
+        
+    elif action.startswith('move'):
+      actions = action.split(' ')
+      card_name = actions[1]
+      
+      try:
+        from_pile = int(actions[2])
+      except:
+        print(f"{actions[2]} is not a valid pile number")
+        
+      to_pile = None
+      if len(action) > 3:
+        try:
+          to_pile = int(actions[3])
+        except:
+          print(f"{actions[3]} is not a valid pile number")
+          continue
+      
+      card = game.find_card_in_pile(card_name, from_pile)
+      if card is None:
+        print(f"Card {card_name} not found in pile {pile_id}")
+      
+      game.move_card(card, from_pile, to_pile)
+      
+      print(f"Moved {card} from pile {from_pile} to {to_pile}")
+      
     elif action == 'keso':
       old_turn = game.turn
       out, drew = game.finish()
@@ -65,12 +96,15 @@ def main():
         print(f"{game.turn}'s turn.")
       else:
         print("Turn could not finish! You still have some invalid piles on the table")
+    
     elif action == 'retreat':
       game.retreat()
       print(f"Took back all {game.turn}'s cards")
+    
     elif action == 'exit':
       import sys
       sys.exit()
+    
     else:
       print("Unknown action. Please try again. Type 'help' for a list of commands.")
   
