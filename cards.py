@@ -5,11 +5,11 @@ from random import shuffle
 class Card:
   suits = ['c', 'd', 'h', 's', 'j']
   normal_suits = ['c', 'd', 'h', 's']
-  min_rank = 0
+  min_rank = 1
   max_rank = 13
 
   long_suits = {'c': 'clubs', 'd': 'diamonds', 'h': 'hearts', 's': 'spades', 'j': 'joker'}
-  suit_values = {'s': 0, 'd': 100, 'h': 200, 'c': 300}
+  suit_values = {'s': 0, 'd': 100, 'h': 200, 'c': 300, 'j':10000000}
   
   @staticmethod
   def rank_name(rank):
@@ -44,7 +44,9 @@ class Card:
       raise ValueError("Sorting value of jokers not defined, it depends on context")
     
     return Card.suit_values[self.suit] + self.rank
-    
+  
+  def hand_card_value(self):
+    return self.rank + 0.0001*Card.suit_values[self.suit]
   
   def __repr__(self):
     suit = Card.long_suits[self.suit]

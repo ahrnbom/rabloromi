@@ -246,11 +246,25 @@ class Game:
   
   def retreat(self):
     # the player wants all their cards back
+    pile_id_to_remove = list()
     for pile_id, pile in self.piles.items():
+      to_remove = list()
+      
       for card in pile.cards:
         if card.owner == self.turn:
-          pile.remove(card)
+          to_remove.append(card)
           self.hands[self.turn].append(card)
+          
+      for card in to_remove:
+        pile.cards.remove(card)
+      
+      if not pile.cards:
+        pile_id_to_remove.append(pile_id)
+    
+    for pile_id in pile_id_to_remove:
+      self.piles.pop(pile_id)
+        
+    # TODO: Reset the board to the state it was at beginning of turn
   
   def json(self):
     # get a json summary of the state of the game
@@ -260,15 +274,20 @@ class Game:
   
     obj['hands'] = dict()
     for player_id in self.player_ids:
-      obj['hands'][player_id] = [str(card) for card in self.hands[player_id]]
+      hand = self.hands[player_id]
+      hand.sort(key=lambda x: x.hand_card_value())
+      obj['hands'][player_id] = [str(card) for card in hand]
       
     obj['piles'] = dict()
     for pile_id, pile in self.piles.items():
       if pile.validate():
-        valid = 'VALID'
+        valid = 'yes'
       else:
-        valid = 'BAD!!'
-      obj['piles'][pile_id] = f"{pile_id}:{valid}:{pile}"
+        valid = 'no'
+      
+      pile_cards = [str(card) for card in pile.cards]
+      pile_obj = {'ID': pile_id, 'valid': valid, 'cards': pile_cards}
+      obj['piles'][pile_id] = pile_obj
     
     obj['turn'] = self.turn
     
