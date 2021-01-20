@@ -172,6 +172,8 @@ class Game:
     
     self.is_local = is_local
     
+    self.save_initial_state()
+    
   def next_pile_id(self):
     if self.piles:
       pile_ids = list(self.piles.keys())
@@ -242,11 +244,22 @@ class Game:
       card = None
     
     self.turn = self.next_turn()
+    
+    pile_id_to_remove = list()
+    for pile_id, pile in self.piles.items():
+      if not pile.cards:
+        pile_id_to_remove.append(pile_id)
+    
+    for pile_id in pile_id_to_remove:
+      self.piles.pop(pile_id)
+    
+    self.save_initial_state()
+    
     return True, card
   
   def retreat(self):
     # the player wants all their cards back
-    pile_id_to_remove = list()
+
     for pile_id, pile in self.piles.items():
       to_remove = list()
       
@@ -257,15 +270,13 @@ class Game:
           
       for card in to_remove:
         pile.cards.remove(card)
-      
-      if not pile.cards:
-        pile_id_to_remove.append(pile_id)
     
-    for pile_id in pile_id_to_remove:
-      self.piles.pop(pile_id)
-        
-    # TODO: Reset the board to the state it was at beginning of turn
-  
+    remaining_cards = list()
+    for pile_id, pile in self.piles.items():
+      remaining_cards.extend(pile.cards)
+    
+    self.restore_initial_state(remaining_cards)
+    
   def json(self):
     # get a json summary of the state of the game
     obj = dict()
@@ -297,7 +308,40 @@ class Game:
     
     return json.dumps(obj, indent=indent)
     
+  def save_initial_state(self):
+    obj = dict()
+    for pile_id, pile in self.piles.items():
+      pile_list = [str(card) for card in pile.cards]
+      obj[pile_id] = pile_list
     
+    self.initial_state = json.dumps(obj)
+    
+  def restore_initial_state(self, cards):    
+    self.piles = dict()
+    obj = json.loads(self.initial_state)
 
+    for pile_id, pile_list in obj.items():
+      pile_cards = list()
+      for pile_str in pile_list:
+        card_id = pile_str.split(':')[0]
+        
+        found = None
+        for card in cards:
+          card_str = str(card).split(':')[0]
+          
+          if card_id == card_str:
+            found = card
+        
+        if found is None:
+          raise ValueError("Initial state contains cards we don't have")
+        
+        cards.remove(found)
+        pile_cards.append(found)
+        
+      self.piles[int(pile_id)] = Pile(pile_cards)
+    
+    if cards:
+      raise ValueError("Some cards were not in the initial state...?")
+      
 if __name__ == "__main__":
   print("This is not intended to be run as a script. You probably want to run server.py, to play online, or local.py, to play in the terminal")
