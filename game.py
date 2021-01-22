@@ -280,6 +280,7 @@ class Game:
     
     if not has_played:
       card = self.deck.draw()
+      card.owner = self.turn
       self.hands[self.turn].append(card)
     else:
       card = None
