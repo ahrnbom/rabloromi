@@ -171,6 +171,9 @@ class Game:
     
     self.is_local = is_local
     
+    # Players who have played a valid pile from their hand are in the game, and their IDs are stored here
+    self.players_in_game = set()
+    
     self.save_initial_state()
     
   def next_pile_id(self):
@@ -202,7 +205,7 @@ class Game:
     
     return None
   
-  def place_card(self, card, player_id, to_id=None):
+  def place_card(self, card, to_id=None):
     # to_id == None means create a new pile
     
     if to_id is None:
@@ -212,12 +215,22 @@ class Game:
       self.piles[to_id] = Pile()
     
     to_pile = self.piles[to_id]
+    
+    if not (self.turn in self.players_in_game):
+      # If there are any cards not belonging to this player, this move is illegal!
+      for old_card in to_pile.cards:
+        if not (old_card.owner == self.turn):
+          raise ValueError(f"Player {self.turn} is not in the game yet! You need to first play a valid pile from your hand, before you can interact with others' cards")
+    
     to_pile.add(card)
     
-    self.hands[player_id].remove(card)
+    self.hands[self.turn].remove(card)
   
   def move_card(self, card, from_id, to_id=None):
     # to_id == None means create a new pile
+    
+    if not (self.turn in self.players_in_game):
+      raise ValueError(f"Player {self.turn} is not in the game yet! Play a valid pile from your hand first")
     
     from_pile = self.piles[from_id]
     
@@ -240,6 +253,23 @@ class Game:
       if not pile.validate():
         return False, None
     
+    if not (self.turn in self.players_in_game):
+      # Check if the player is in the game now
+      in_game_now = False
+      
+      for pile_id, pile in self.piles.items():
+        ok = True
+        
+        for card in pile.cards:
+          if not (card.owner == self.turn):
+            ok = False
+        
+        if ok:
+          in_game_now = True
+      
+      if in_game_now:
+        self.players_in_game.add(self.turn)
+        
     # Now, all your cards belong to the table!
     has_played = False
     for pile_id, pile in self.piles.items():
@@ -293,6 +323,8 @@ class Game:
     obj = dict()
   
     obj['players'] = self.player_ids
+    
+    obj['players_in_game'] = list(self.players_in_game)
   
     obj['hands'] = dict()
     for player_id in self.player_ids:

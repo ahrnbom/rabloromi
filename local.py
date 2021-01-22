@@ -59,7 +59,11 @@ def main():
             print(f"{actions[2]} is not a valid pile number")
         else:
           pile_id = None
-        game.place_card(card, game.turn, pile_id)
+        
+        try:
+          game.place_card(card, pile_id)
+        except ValueError as err:
+          print(f"Something went wrong: {err}")
         
     elif action.startswith('move'):
       actions = action.split(' ')
@@ -82,9 +86,11 @@ def main():
       if card is None:
         print(f"Card {card_name} not found in pile {pile_id}")
       
-      game.move_card(card, from_pile, to_pile)
-      
-      print(f"Moved {card} from pile {from_pile} to {to_pile}")
+      try:
+        game.move_card(card, from_pile, to_pile)
+        print(f"Moved {card} from pile {from_pile} to {to_pile}")
+      except ValueError as err:
+        print(f"Something went wrong: {err}")
       
     elif action == 'keso':
       old_turn = game.turn
