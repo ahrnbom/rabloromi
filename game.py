@@ -67,7 +67,6 @@ class Pile:
           self.cards.remove(ace)
           ace.rank = 14
           self.cards.append(ace)
-          print(self)
           if validate_chain(self.cards, jokers):
             ace.rank = 1
             return True

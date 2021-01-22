@@ -71,7 +71,7 @@ def main():
         print(f"{actions[2]} is not a valid pile number")
         
       to_pile = None
-      if len(action) > 3:
+      if len(actions) > 3:
         try:
           to_pile = int(actions[3])
         except:
