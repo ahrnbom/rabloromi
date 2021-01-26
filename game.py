@@ -159,6 +159,27 @@ class Game:
   storage = Path('.') / 'games'
 
   @staticmethod
+  def list_games():
+    storage = Game.storage
+    
+    folders = [f for f in storage.glob('*') if f.is_dir()]
+    
+    games = list()
+    
+    for folder in folders:
+      players_file = folder / "players.txt"
+      if not players_file.is_file():
+        continue
+      
+      players = players_file.read_text().split('\n')
+  
+      game_id = folder.name
+      
+      games.append( {'id':game_id, 'players':players} )
+    
+    return games
+
+  @staticmethod
   def load(game_id):
     storage = Game.storage
     
