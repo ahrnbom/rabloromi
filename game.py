@@ -172,10 +172,16 @@ class Game:
         continue
       
       players = players_file.read_text().split('\n')
-  
+      
+      name_file = folder / "name.txt"
+      if not name_file.is_file():
+        continue
+      
+      name = name_file.read_text().strip('\n')
+      
       game_id = folder.name
       
-      games.append( {'id':game_id, 'players':players} )
+      games.append( {'id':game_id, 'name': name, 'players':players} )
     
     return games
 

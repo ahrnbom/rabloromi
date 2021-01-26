@@ -15,6 +15,10 @@ More details and instructions are coming soon...
 
 ### Instructions for hosting a server
 
+`python unpack.py` (this only needs to run once)
+
+Then, to start the server, run:
+
 `python server.py`
 
 You can then visit the server using a web browser. More instructions are coming soon... Maybe.
