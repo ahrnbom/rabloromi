@@ -34,6 +34,8 @@ def main():
     - 'view'                            - display the state of the game
     - 'keso'                            - finishes your turn
     - 'retreat'                         - take back all your cards
+    - 'save GAME_ID'                    - save the game to disk
+    - 'load GAME_ID'                    - loads the game from disk
     - 'exit'                            - close the game
       
     Note that CARD_NAME should be on the following format:
@@ -106,6 +108,19 @@ def main():
     elif action == 'retreat':
       game.retreat()
       print(f"Took back all {game.turn}'s cards")
+    
+    elif action.startswith('save'):
+      game_id = action.split(' ')[1]
+      game.save(game_id)
+      print(f"Game saved as {game_id}")
+      
+    elif action.startswith('load'):
+      game_id = action.split(' ')[1]
+      try:
+        game = Game.load(game_id)
+      except ValueError as err:
+        print(f"Could not load game {game_id} because of error:")
+        print(err)
     
     elif action == 'exit':
       import sys

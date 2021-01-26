@@ -1,5 +1,7 @@
 from itertools import cycle
 import json
+import pickle
+from pathlib import Path
 
 from cards import Card, Deck
 
@@ -154,8 +156,30 @@ def validate_chain(cards, jokers):
   
   
 class Game:
-  def __init__(self, player_ids, is_local=False):
-    self.player_ids = player_ids
+  storage = Path('.') / 'games'
+
+  @staticmethod
+  def load(game_id):
+    storage = Game.storage
+    
+    folder = storage / str(game_id)
+    if not folder.is_dir():
+      raise ValueError(f"Game with ID {game_id} does not exist")
+    
+    file_path = folder / f"{game_id}.pickle"
+    if not file_path.is_file():
+      raise ValueError(f"Game with ID {game_id} does not exist")
+    
+    try:
+      with file_path.open('rb') as f:
+        game = pickle.load(f)
+    except:
+      raise ValueError(f"Game {game_id} is corrupt")
+    
+    return game
+
+  def __init__(self, player_ids, is_local=False, game_name="Untitled game"):
+    self.player_ids = list(player_ids)
     self.turns = cycle(self.player_ids)
     
     self.piles = dict()
@@ -175,6 +199,26 @@ class Game:
     self.players_in_game = set()
     
     self.save_initial_state()
+    
+    self.name = game_name
+  
+  def save(self, game_id):
+    game_id = str(game_id)
+  
+    storage = Game.storage
+    storage.mkdir(exist_ok=True)
+    
+    folder = storage / game_id
+    folder.mkdir(exist_ok=True)
+    
+    file_path = folder / f"{game_id}.pickle"
+    with file_path.open('wb') as f:
+      pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+    
+    (folder / 'name.txt').write_text(self.name)
+    
+    (folder / 'players.txt').write_text('\n'.join(self.player_ids))
+    
     
   def next_pile_id(self):
     if self.piles:
