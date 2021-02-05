@@ -20,7 +20,7 @@ def ok_str(s):
 def main_page():
     content = Path('static') / 'index.html'
     assert(content.is_file())
-    return Response(content.read_text(), mimetype="text/html")
+    return Response(content.read_text(encoding='utf-8'), mimetype="text/html")
 
 @api.route('/games', methods=['GET'])
 def get_games():
