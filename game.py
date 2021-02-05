@@ -205,7 +205,7 @@ class Game:
     
     return game
 
-  def __init__(self, player_ids, is_local=False, game_name="Untitled game"):
+  def __init__(self, player_ids, is_local=False, game_name="Untitled_game"):
     self.player_ids = list(player_ids)
     self.turns = cycle(self.player_ids)
     
@@ -229,7 +229,10 @@ class Game:
     
     self.name = game_name
   
-  def save(self, game_id):
+  def save(self, game_id=None):
+    if game_id is None:
+      game_id = self.name
+      
     game_id = str(game_id)
   
     storage = Game.storage
