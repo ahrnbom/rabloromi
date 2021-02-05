@@ -2,6 +2,7 @@ from flask import Flask, json, Response
 from pathlib import Path
 
 from game import Game
+from unpack import unpack_files
 
 api = Flask(__name__)
 
@@ -16,4 +17,5 @@ def get_games():
   return json.dumps(Game.list_games())
 
 if __name__ == '__main__':
+  unpack_files()
   api.run()
