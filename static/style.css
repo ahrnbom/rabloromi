@@ -1,0 +1,23 @@
+body {
+    background-color:mintcream;
+}
+
+div.img {
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
+}
+
+div.host_game {
+    margin:auto;
+    width:50%;
+    border-style: dashed;
+    border-color: darkgreen;
+    text-align: center;
+}

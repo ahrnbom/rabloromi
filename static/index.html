@@ -2,19 +2,37 @@
 <head>
 
   <title>Rablorömi</title>
-  
-  
+  <link rel="stylesheet" href="static/style.css">
+  <script src="static/main_page.js"></script>  
 </head>
 <body>
 
-<h1>Rablorömi for Python</h1>
+<h1>Rablorömi Web Interface</h1>
 
-<img src='static/cards/2J.svg'>
-</img>
+<div class="img">
+  <img src='static/cards/2J.svg' alt="Image of a joker card"/>
+</div>
 
+<br></br>
 
-<h3>Host a game</h3>
+<div class=host_game>
+  <h3>Host a game</h3>
+  <label for="host_n_players">Number of players (2-10):</label>
+  <input type="number" id="host_n_players" name="host_n_players" min="2" max="10" onchange="n_players_changed()"> 
+
+  <p>Enter names:</p>
+  <div class=host_names id=host_names>
+    
+  </div>
+  <button onclick="host_game()">
+    Host game
+  </button>
+  
+  <br></br>
+</div>
+
 
 
 </body>
+
 </html>
