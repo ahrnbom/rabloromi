@@ -1,6 +1,5 @@
 from random import shuffle
 
-  
 
 class Card:
   suits = ['c', 'd', 'h', 's', 'j']
@@ -75,7 +74,7 @@ class Card:
     
 class Deck:
   def __init__(self, jokers=4):
-    # rablorömi uses two decks with a varying amount of jokers
+    # rablorÃ¶mi uses two decks with a varying amount of jokers
     # more jokers makes the game easier and faster
     
     self.jokers = jokers # in case you want to display the number of jokers during the game or something..?
@@ -90,7 +89,7 @@ class Deck:
         self.cards.extend([card1, card2])
         
     for i in range(jokers):
-      self.cards.append(Card('j', i+1)) # jokers get different ranks just in case you'd need to tell them apart, but I don't think that'll be necessary)
+      self.cards.append(Card('j', i+1)) # jokers get different ranks just in case you'd need to tell them apart, but I don't think that'll be necessary
       
     shuffle(self.cards)
     
@@ -103,7 +102,7 @@ class Deck:
   def draw_hand(self, player_id, n=10):
     hand = list()
     
-    for i in range(n):
+    for _ in range(n):
       card = self.draw()
       
       if card is None:

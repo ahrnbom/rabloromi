@@ -44,12 +44,12 @@ class Pile:
       else:
         self.cards.extend(jokers)
         return False 
-        """ 
-        Actually, this would mean that two aces of the same suit and 
-        12 jokers in between them would not be a valid chain, which it
-        technically should, but it's such a stupid and infeasible scenario 
-        that I'm going to ignore it, at least for now 
-        """
+         
+        # Actually, this would mean that two aces of the same suit and 
+        # 12 jokers in between them would not be a valid chain, which it
+        # technically should, but it's such a stupid and infeasible scenario 
+        # that I'm going to ignore it, at least for now 
+        
         
     first_suit = self.cards[0].suit
     if all(first_suit == card.suit for card in self.cards):
@@ -376,7 +376,7 @@ class Game:
   def retreat(self):
     # the player wants all their cards back
 
-    for pile_id, pile in self.piles.items():
+    for pile in self.piles.values():
       to_remove = list()
       
       for card in pile.cards:
@@ -388,7 +388,7 @@ class Game:
         pile.cards.remove(card)
     
     remaining_cards = list()
-    for pile_id, pile in self.piles.items():
+    for pile in self.piles.values():
       remaining_cards.extend(pile.cards)
     
     self.restore_initial_state(remaining_cards)

@@ -24,7 +24,13 @@ def main_page():
 
 @api.route('/games', methods=['GET'])
 def get_games():
-  return json.dumps(Game.list_games())
+  player = request.args.get('player', type=str, default='')
+  
+  games = Game.list_games()
+  if player:
+    games = [g for g in games if player in g['players']]
+
+  return json.dumps(games)
 
 @api.route('/host', methods=['GET'])
 def host_game():
