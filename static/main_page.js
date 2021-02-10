@@ -103,11 +103,8 @@ function get_games_response(games_string) {
         p.innerHTML = p_text;
         game_div.appendChild(p);
 
-        var button = document.createElement("button");
-        function f() {
-            join_game(game_id);
-        }
-        button.onclick = f;
+        var button = document.createElement("button");       
+        button.onclick = create_clickevent(game_id);
         button.innerHTML = "Join game " + game_id;
         game_div.appendChild(button);
 
@@ -115,6 +112,12 @@ function get_games_response(games_string) {
 
         var br = document.createElement("br");
         games_list.appendChild(br);
+    }
+}
+
+function create_clickevent(game_id) {
+    return function() {
+        join_game(game_id);
     }
 }
 
