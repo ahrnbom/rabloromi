@@ -14,10 +14,15 @@ h3 {
     text-align: center;
 }
 
+p.bottom {
+    font-size: small;
+    font-style: italic;
+}
+
 div.join_game {
     margin:auto;
     width:50%;
-    border-style: dashed;
+    border-style:solid;
     border-color: darkgreen;
     text-align: center;
 }
@@ -25,7 +30,7 @@ div.join_game {
 div.host_game {
     margin:auto;
     width:50%;
-    border-style: dashed;
+    border-style: solid;
     border-color: darkgreen;
     text-align: center;
 }
