@@ -60,3 +60,64 @@ function host_response() {
     var p = document.getElementById("host_response");
     p.innerHTML = "Hosted game successfully!";
 }
+
+
+function join_name_changed() {
+    var name_input = document.getElementById("join_name");
+    var name = name_input.value;
+
+    if (name) {
+        httpGetAsync("games?player=" + name, get_games_response);
+    } else {
+        httpGetAsync("games", get_games_response);
+    }
+}
+
+function get_games_response(games_string) {
+    var games_list = document.getElementById("games_list");
+    while (games_list.hasChildNodes()) {
+        games_list.removeChild(games_list.firstChild);
+    }
+
+    var games = JSON.parse(games_string);
+    for (var i = 0; i < games.length; ++i) {
+        var game = games[i];
+        
+        var game_id = game['id'];
+        var game_name = game['name'];
+        var players = game['players'];
+
+        var game_div = document.createElement("div");
+        game_div.className = "game_in_list";
+
+        var p = document.createElement("p");
+        p.innerHTML = game_name + " (" + game_id + ")";
+        game_div.appendChild(p);
+
+        var p = document.createElement("p");
+        var p_text = "Players: ";
+        for (var j = 0; j < players.length; ++j) {
+            p_text += players[j] + ", ";
+        }
+        p_text = p_text.slice(0, -2);
+        p.innerHTML = p_text;
+        game_div.appendChild(p);
+
+        var button = document.createElement("button");
+        function f() {
+            join_game(game_id);
+        }
+        button.onclick = f;
+        button.innerHTML = "Join game " + game_id;
+        game_div.appendChild(button);
+
+        games_list.appendChild(game_div);
+
+        var br = document.createElement("br");
+        games_list.appendChild(br);
+    }
+}
+
+function join_game(game_id) {
+    alert(game_id);
+}

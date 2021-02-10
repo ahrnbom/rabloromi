@@ -14,10 +14,26 @@ h3 {
     text-align: center;
 }
 
+div.join_game {
+    margin:auto;
+    width:50%;
+    border-style: dashed;
+    border-color: darkgreen;
+    text-align: center;
+}
+
 div.host_game {
     margin:auto;
     width:50%;
     border-style: dashed;
     border-color: darkgreen;
     text-align: center;
+}
+
+div.game_in_list {
+    border-style: solid;
+    border-color: darkgreen;
+    border-width: 0.01cm;
+    width:90%;
+    margin:auto;
 }
