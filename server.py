@@ -57,6 +57,22 @@ def host_game():
   
   return f"Successfully created game {game_name}", 200
 
+@api.route('/view_game', methods=['GET'])
+def view_game():
+  game_id = request.args.get('game_id', type=str, default=None)
+
+  if game_id is None:
+    return "Invalid game ID", 400
+  
+  try:
+    game = Game.load(game_id)
+  except ValueError as err:
+    return f"Something went wrong: {err}", 400 
+  except:
+    return "Failed to load game due to some unforeseen error", 400
+
+  return game.json(), 200
+
 if __name__ == '__main__':
   unpack_files()
   api.run()

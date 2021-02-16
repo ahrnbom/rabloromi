@@ -22,8 +22,6 @@ def main():
   print("You can always type 'help' for a list of commands.")
   
   while True:
-    turn = game.turn
-  
     action = input("What do you want to do? Your choice: ")
     if action == 'help':
       print('Available actions:')
