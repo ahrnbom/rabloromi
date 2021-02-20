@@ -1,3 +1,17 @@
+function httpGetAsync(url, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4) {
+            if (xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+            else 
+                alert("Server error on url " + url + " with " + xmlHttp.status + " and message '" + xmlHttp.responseText);
+        } 
+    }
+    xmlHttp.open("GET", url, true); 
+    xmlHttp.send(null);
+}
 
 window.onload = () => {
     var url = new URL(location.href);
@@ -24,4 +38,11 @@ function start(game_id) {
     ctx.clearRect(0, 0, w, h);
     ctx.font = "16px Arial";
     ctx.fillText("Loading the game " + game_id + "...", 20, 20);
+
+    httpGetAsync("/view_game?game_id=" + game_id, display_game);
+}
+
+function display_game(in_data) {
+    var data = JSON.parse(in_data);
+    
 }
