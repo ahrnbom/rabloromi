@@ -42,3 +42,11 @@ div.game_in_list {
     width:90%;
     margin:auto;
 }
+
+div.game_container {
+    border-style: solid;
+    border-color: darkgreen;
+    border-width: 0.01cm;
+    width:90%;
+    margin:auto;
+}

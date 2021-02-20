@@ -122,5 +122,5 @@ function create_clickevent(game_id) {
 }
 
 function join_game(game_id) {
-    alert(game_id);
+    window.location = "static/playing.html?game_id=" + game_id;
 }
