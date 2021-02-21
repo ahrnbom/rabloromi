@@ -30,6 +30,7 @@ var game_id;
 var w, h;
 var canvas;
 var game_data;
+var canvas_scale = 3.0;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -37,8 +38,8 @@ function start(_game_id, _player_name) {
     
     canvas = document.getElementById("game_canvas");
 
-    w = canvas.clientWidth;
-    h = canvas.clientHeight;
+    w = canvas.clientWidth * canvas_scale;
+    h = canvas.clientHeight * canvas_scale;
 
     canvas.width = w;
     canvas.height = h;
@@ -106,9 +107,10 @@ function draw_card(ctx, card_ID, x, y, scale=1.0) {
     // scale is 1.0 for standard size
     var card_w = w*0.075*scale;
     var card_h = 1.55*card_w;
+
     if (images_loaded) {
         ctx.drawImage(images[card_ID + ".svg"], x*w, y*h, card_w, card_h)
     }
 }
 
-setInterval(main_loop, 0.03);
+setInterval(main_loop, 0.05);
