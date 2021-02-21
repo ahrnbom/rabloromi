@@ -51,8 +51,8 @@ function start(_game_id, _player_name) {
 
     httpGetAsync("/view_game?game_id=" + game_id, display_game);
 
-    load_images(["cards/1B.svg",
-                 "cards/1J.svg"]);
+    load_images(["cards/joker1.svg",
+                 "cards/back1.svg"]);
 }
 
 var images_loaded = false;
@@ -98,13 +98,14 @@ function draw() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
 
-    draw_card(ctx, "1B", 0.01, 0.01, 1.0);
-    draw_card(ctx, "1J", 0.05, 0.01, 1.1);
+    draw_card(ctx, "back1", 0.01, 0.01, 1.0);
+    draw_card(ctx, "joker1", 0.05, 0.01, 1.1);
 
 }
 
 function draw_card(ctx, card_ID, x, y, scale=1.0) {
-    // scale is 1.0 for standard size
+    // x and y are relative to the board's size 
+
     var card_w = w*0.075*scale;
     var card_h = 1.55*card_w;
 
