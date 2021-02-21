@@ -79,6 +79,9 @@ function get_games_response(games_string) {
         games_list.removeChild(games_list.firstChild);
     }
 
+    var name_input = document.getElementById("join_name");
+    var player_name = name_input.value;
+
     var games = JSON.parse(games_string);
     for (var i = 0; i < games.length; ++i) {
         var game = games[i];
@@ -104,7 +107,7 @@ function get_games_response(games_string) {
         game_div.appendChild(p);
 
         var button = document.createElement("button");       
-        button.onclick = create_clickevent(game_id);
+        button.onclick = create_clickevent(game_id, player_name);
         button.innerHTML = "Join game " + game_id;
         game_div.appendChild(button);
 
@@ -115,12 +118,12 @@ function get_games_response(games_string) {
     }
 }
 
-function create_clickevent(game_id) {
+function create_clickevent(game_id, player_name) {
     return function() {
-        join_game(game_id);
+        join_game(game_id, player_name);
     }
 }
 
-function join_game(game_id) {
-    window.location = "static/playing.html?game_id=" + game_id;
+function join_game(game_id, player_name) {
+    window.location = "static/playing.html?game_id=" + game_id + "&player_name=" + player_name;
 }
