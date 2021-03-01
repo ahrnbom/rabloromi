@@ -51,8 +51,27 @@ function start(_game_id, _player_name) {
 
     httpGetAsync("/view_game?game_id=" + game_id, display_game);
 
-    load_images(["cards/joker1.svg",
-                 "cards/back1.svg"]);
+    var card_list = ["cards/joker1.svg",
+                        "cards/back1.svg"
+                    ];
+    var suits = ['s', 'h', 'c', 'd'];
+    for (var val = 1; val < 14; ++val) {
+        for (var suit_id = 0; suit_id < 4; ++suit_id) {
+            if (val == 11) {
+                val_name = 'j';
+            } else if (val == 12) {
+                val_name = 'q';
+            } else if (val == 13) {
+                val_name = 'k';
+            } else {
+                val_name = String(val);
+            }
+
+            var card_name = val_name + suits[suit_id];
+            card_list.push("cards/" + card_name + ".svg");
+        }
+    }
+    load_images(card_list);
 }
 
 var images_loaded = false;
@@ -99,7 +118,7 @@ function draw() {
     ctx.fillRect(0, 0, w, h);
 
     draw_card(ctx, "back1", 0.01, 0.01, 1.0);
-    draw_card(ctx, "joker1", 0.05, 0.01, 1.1);
+    draw_card(ctx, "1s", 0.05, 0.01, 1.1);
 
 }
 
