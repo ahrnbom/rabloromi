@@ -30,8 +30,9 @@ var game_id;
 var w, h;
 var canvas;
 var game_data;
-var canvas_scale = 3.0;
+var canvas_scale = 2.5;
 var all_cards = [];
+var is_dragging = false;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -75,6 +76,8 @@ function start(_game_id, _player_name) {
     load_images(card_list);
 
     canvas.addEventListener("mousedown", on_mouse_down);
+    canvas.addEventListener("mouseup", on_mouse_up);
+    canvas.addEventListener("mousemove", on_mouse_move);
 
     all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"});
 }
@@ -108,8 +111,18 @@ function display_game(in_data) {
 }
 
 function on_mouse_down(e) {
-    all_cards[0].x = 3*e.x/w;
-    all_cards[0].y = 3*e.y/h;
+    is_dragging = true;
+}
+
+function on_mouse_move(e) {
+    if (is_dragging) {
+        all_cards[0].x = canvas_scale*e.offsetX/w;
+        all_cards[0].y = canvas_scale*e.offsetY/h;
+    }
+}
+
+function on_mouse_up(e) {
+    is_dragging = false;
 }
 
 function main_loop() {
