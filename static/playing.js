@@ -31,6 +31,7 @@ var w, h;
 var canvas;
 var game_data;
 var canvas_scale = 3.0;
+var all_cards = [];
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -72,6 +73,10 @@ function start(_game_id, _player_name) {
         }
     }
     load_images(card_list);
+
+    canvas.addEventListener("mousedown", on_mouse_down);
+
+    all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"});
 }
 
 var images_loaded = false;
@@ -99,12 +104,17 @@ function load_images(urls) {
 
 function display_game(in_data) {
     game_data = JSON.parse(in_data);
- 
+    
+}
+
+function on_mouse_down(e) {
+    all_cards[0].x = 3*e.x/w;
+    all_cards[0].y = 3*e.y/h;
 }
 
 function main_loop() {
-    draw();
     update();
+    draw();
 }
 
 function update() {
@@ -116,6 +126,11 @@ function draw() {
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
+
+    for (var i = 0; i < all_cards.length; ++i) {
+        card = all_cards[i];
+        draw_card(ctx, card.card, card.x, card.y, 1.0);
+    }
 
     draw_card(ctx, "back1", 0.01, 0.01, 1.0);
     draw_card(ctx, "1s", 0.05, 0.01, 1.1);
