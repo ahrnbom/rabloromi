@@ -30,9 +30,10 @@ var game_id;
 var w, h;
 var canvas;
 var game_data;
-var canvas_scale = 2.5;
+var canvas_scale = 1.5;
 var all_cards = [];
-var is_dragging = false;
+var is_dragging = -1;
+const card_scale = 0.065;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -53,8 +54,8 @@ function start(_game_id, _player_name) {
 
     httpGetAsync("/view_game?game_id=" + game_id, display_game);
 
-    var card_list = ["cards/joker1.svg",
-                        "cards/back1.svg"
+    var card_list = ["cards/joker.png",
+                        "cards/back.png"
                     ];
     var suits = ['s', 'h', 'c', 'd'];
     for (var val = 1; val < 14; ++val) {
@@ -70,7 +71,7 @@ function start(_game_id, _player_name) {
             }
 
             var card_name = val_name + suits[suit_id];
-            card_list.push("cards/" + card_name + ".svg");
+            card_list.push("cards/" + card_name + ".png");
         }
     }
     load_images(card_list);
@@ -79,7 +80,8 @@ function start(_game_id, _player_name) {
     canvas.addEventListener("mouseup", on_mouse_up);
     canvas.addEventListener("mousemove", on_mouse_move);
 
-    all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"});
+    all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"},
+                   {'x': 0.1, 'y':0.5, 'card':"5h"});
 }
 
 var images_loaded = false;
@@ -111,18 +113,18 @@ function display_game(in_data) {
 }
 
 function on_mouse_down(e) {
-    is_dragging = true;
+    is_dragging = 0;
 }
 
 function on_mouse_move(e) {
-    if (is_dragging) {
-        all_cards[0].x = canvas_scale*e.offsetX/w;
-        all_cards[0].y = canvas_scale*e.offsetY/h;
+    if (is_dragging > -1) {
+        all_cards[is_dragging].x = canvas_scale*e.offsetX/w;
+        all_cards[is_dragging].y = canvas_scale*e.offsetY/h;
     }
 }
 
 function on_mouse_up(e) {
-    is_dragging = false;
+    is_dragging = -1;
 }
 
 function main_loop() {
@@ -145,7 +147,7 @@ function draw() {
         draw_card(ctx, card.card, card.x, card.y, 1.0);
     }
 
-    draw_card(ctx, "back1", 0.01, 0.01, 1.0);
+    draw_card(ctx, "back", 0.01, 0.01, 1.0);
     draw_card(ctx, "1s", 0.05, 0.01, 1.1);
 
 }
@@ -153,11 +155,11 @@ function draw() {
 function draw_card(ctx, card_ID, x, y, scale=1.0) {
     // x and y are relative to the board's size 
 
-    var card_w = w*0.075*scale;
+    var card_w = w*card_scale*scale;
     var card_h = 1.55*card_w;
 
     if (images_loaded) {
-        ctx.drawImage(images[card_ID + ".svg"], x*w, y*h, card_w, card_h)
+        ctx.drawImage(images[card_ID + ".png"], x*w, y*h, card_w, card_h)
     }
 }
 
