@@ -34,6 +34,7 @@ var canvas_scale = 1.5;
 var all_cards = [];
 var is_dragging = -1;
 const card_scale = 0.065;
+const card_ar = 1.55;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -81,7 +82,8 @@ function start(_game_id, _player_name) {
     canvas.addEventListener("mousemove", on_mouse_move);
 
     all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"},
-                   {'x': 0.1, 'y':0.5, 'card':"5h"});
+                   {'x': 0.1, 'y':0.5, 'card':"5h"},
+                   {'x': 0.5, 'y': 0.1, 'card': "back"});
 }
 
 var images_loaded = false;
@@ -113,13 +115,36 @@ function display_game(in_data) {
 }
 
 function on_mouse_down(e) {
-    is_dragging = 0;
+    let mouse_x = canvas_scale*e.offsetX/w;
+    let mouse_y = canvas_scale*e.offsetY/h;
+
+    let card_w = card_scale;
+    let card_h = card_w*card_ar*2;
+
+    is_dragging = -1;
+    for (var i = 0; i < all_cards.length; ++i) {
+        // Check if you are clicking inside that card
+        let card = all_cards[i];
+        if ((mouse_x > card.x) && 
+            (mouse_y > card.y) && 
+            (mouse_x < card.x + card_w) && 
+            (mouse_y < card.y + card_h)) {
+            if (card.card != "back") { // cannot drag flipped cards
+                is_dragging = i;
+            }
+            
+        }
+    }
+    
 }
 
 function on_mouse_move(e) {
     if (is_dragging > -1) {
-        all_cards[is_dragging].x = canvas_scale*e.offsetX/w;
-        all_cards[is_dragging].y = canvas_scale*e.offsetY/h;
+        let card_w = card_scale;
+        let card_h = card_w*card_ar;
+
+        all_cards[is_dragging].x = canvas_scale*e.offsetX/w - card_w/2;
+        all_cards[is_dragging].y = canvas_scale*e.offsetY/h - card_h;
     }
 }
 
@@ -138,28 +163,24 @@ function update() {
 
 function draw() {
        
-    var ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
 
     for (var i = 0; i < all_cards.length; ++i) {
-        card = all_cards[i];
+        let card = all_cards[i];
         draw_card(ctx, card.card, card.x, card.y, 1.0);
     }
-
-    draw_card(ctx, "back", 0.01, 0.01, 1.0);
-    draw_card(ctx, "1s", 0.05, 0.01, 1.1);
-
 }
 
 function draw_card(ctx, card_ID, x, y, scale=1.0) {
     // x and y are relative to the board's size 
 
-    var card_w = w*card_scale*scale;
-    var card_h = 1.55*card_w;
+    let card_w = w*card_scale*scale;
+    let card_h = card_ar*card_w;
 
     if (images_loaded) {
-        ctx.drawImage(images[card_ID + ".png"], x*w, y*h, card_w, card_h)
+        ctx.drawImage(images[card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h)
     }
 }
 
