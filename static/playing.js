@@ -32,7 +32,7 @@ var canvas;
 var game_data;
 var canvas_scale = 1.5;
 var all_cards = [];
-var is_dragging = -1;
+var is_dragging = false;
 const card_scale = 0.065;
 const card_ar = 1.55;
 
@@ -121,7 +121,7 @@ function on_mouse_down(e) {
     let card_w = card_scale;
     let card_h = card_w*card_ar*2;
 
-    is_dragging = -1;
+    let dragged_card_index = -1;
     for (var i = 0; i < all_cards.length; ++i) {
         // Check if you are clicking inside that card
         let card = all_cards[i];
@@ -130,26 +130,34 @@ function on_mouse_down(e) {
             (mouse_x < card.x + card_w) && 
             (mouse_y < card.y + card_h)) {
             if (card.card != "back") { // cannot drag flipped cards
-                is_dragging = i;
+                dragged_card_index = i;
             }
             
         }
+    }
+
+    if (dragged_card_index > -1) {
+        // Place that card at the end of all_cards to make sure it's drawn on top
+        let card = all_cards[dragged_card_index];
+        all_cards.splice(dragged_card_index, 1);
+        all_cards.push(card);
+        is_dragging = true;
     }
     
 }
 
 function on_mouse_move(e) {
-    if (is_dragging > -1) {
+    if (is_dragging) {
         let card_w = card_scale;
         let card_h = card_w*card_ar;
 
-        all_cards[is_dragging].x = canvas_scale*e.offsetX/w - card_w/2;
-        all_cards[is_dragging].y = canvas_scale*e.offsetY/h - card_h;
+        all_cards[all_cards.length - 1].x = canvas_scale*e.offsetX/w - card_w/2;
+        all_cards[all_cards.length - 1].y = canvas_scale*e.offsetY/h - card_h;
     }
 }
 
 function on_mouse_up(e) {
-    is_dragging = -1;
+    is_dragging = false;
 }
 
 function main_loop() {
