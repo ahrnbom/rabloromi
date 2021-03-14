@@ -22,7 +22,6 @@ window.onload = () => {
     } else {
         alert("Incorrect game id or player name!");
     }
-
 }
 
 var player_name;
@@ -35,6 +34,7 @@ var all_cards = [];
 var is_dragging = false;
 const card_scale = 0.065;
 const card_ar = 1.55;
+var piles = {};
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -53,10 +53,10 @@ function start(_game_id, _player_name) {
     ctx.font = "16px Arial";
     ctx.fillText("Loading the game " + game_id + "...", 20, 20);
 
-    httpGetAsync("/view_game?game_id=" + game_id, display_game);
+    httpGetAsync("/view_game?game_id=" + game_id, load_state);
 
     var card_list = ["cards/joker.png",
-                        "cards/back.png"
+                     "cards/back.png"
                     ];
     var suits = ['s', 'h', 'c', 'd'];
     for (var val = 1; val < 14; ++val) {
@@ -81,9 +81,11 @@ function start(_game_id, _player_name) {
     canvas.addEventListener("mouseup", on_mouse_up);
     canvas.addEventListener("mousemove", on_mouse_move);
 
+    /* some test cards
     all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"},
                    {'x': 0.1, 'y':0.5, 'card':"5h"},
                    {'x': 0.5, 'y': 0.1, 'card': "back"});
+    */
 }
 
 var images_loaded = false;
@@ -109,9 +111,47 @@ function load_images(urls) {
     }
 }
 
-function display_game(in_data) {
+function load_state(in_data) {
     game_data = JSON.parse(in_data);
     
+    let players = game_data.players;
+    let player_in_game = game_data.players_in_game;
+    let hands = game_data.hands;
+
+    // Initialize piles with player hands
+    for (let i = 0; i < players.length; ++i) {
+        let player = players[i];
+        let x, y;
+        if (player == player_name) {
+            // This player is me
+            x = 0.01;
+            y = 0.01;
+        } else {
+            x = 0.01 + 0.1*(piles.length+1);
+            y = 0.01;
+        }
+        let pile = {'x': x, 'y': y, 'cards': []};
+        piles[player] = pile;
+    }
+
+    let your_hand = hands[player_name];
+    your_hand.forEach(card_str => {
+        place_card(card_str, true, player_name);
+    });
+}
+
+function place_card(card_str, is_up, pile_id) {
+    let card_id = card_str.split(':')[0];
+    if (!is_up) {
+        card_id = "back";
+    }
+
+    let pile = piles[pile_id];
+
+    let card = {'x': pile.x + pile.cards.length*card_scale*0.4, 'y': pile.y, 'card': card_id};
+    pile.cards.push(card);
+
+    all_cards.push(card);
 }
 
 function on_mouse_down(e) {
