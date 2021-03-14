@@ -35,6 +35,7 @@ var is_dragging = false;
 const card_scale = 0.065;
 const card_ar = 1.55;
 var piles = {};
+var hand_size;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -118,7 +119,7 @@ function load_state(in_data) {
     let player_in_game = game_data.players_in_game;
     let hands = game_data.hands;
 
-    let hand_size = 1.0 / players.length;
+    hand_size = 1.0 / players.length;
     let n_piles = 0;
 
     // Initialize piles with player hands
@@ -128,10 +129,10 @@ function load_state(in_data) {
         if (player == player_name) {
             // This player is me
             x = 0.01;
-            y = 0.01;
+            y = 0.02;
         } else {
             x = 0.01 + hand_size*(n_piles+1);
-            y = 0.01;
+            y = 0.02;
             n_piles++;
         }
         let pile = {'x': x, 'y': y, 'cards': []};
@@ -219,10 +220,20 @@ function draw() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
 
-    for (var i = 0; i < all_cards.length; ++i) {
+    for (let i = 0; i < all_cards.length; ++i) {
         let card = all_cards[i];
         draw_card(ctx, card.card, card.x, card.y, 1.0);
     }
+
+    if (game_data) {
+        ctx.fillStyle = "#000000";
+        for (let i = 0; i < game_data.players.length; ++i) {
+            let player = game_data.players[i];
+            let pile = piles[player];
+            ctx.fillText(player, w*(pile.x+0.005), h*(pile.y-0.005));   
+        }
+    }
+    
 }
 
 function draw_card(ctx, card_ID, x, y, scale=1.0) {
