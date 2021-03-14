@@ -118,6 +118,9 @@ function load_state(in_data) {
     let player_in_game = game_data.players_in_game;
     let hands = game_data.hands;
 
+    let hand_size = 1.0 / players.length;
+    let n_piles = 0;
+
     // Initialize piles with player hands
     for (let i = 0; i < players.length; ++i) {
         let player = players[i];
@@ -127,17 +130,19 @@ function load_state(in_data) {
             x = 0.01;
             y = 0.01;
         } else {
-            x = 0.01 + 0.1*(piles.length+1);
+            x = 0.01 + hand_size*(n_piles+1);
             y = 0.01;
+            n_piles++;
         }
         let pile = {'x': x, 'y': y, 'cards': []};
         piles[player] = pile;
+        
+        let hand = hands[player];
+        hand.forEach(card_str => {
+            place_card(card_str, player==player_name, player);
+        });
+        
     }
-
-    let your_hand = hands[player_name];
-    your_hand.forEach(card_str => {
-        place_card(card_str, true, player_name);
-    });
 }
 
 function place_card(card_str, is_up, pile_id) {
@@ -147,8 +152,7 @@ function place_card(card_str, is_up, pile_id) {
     }
 
     let pile = piles[pile_id];
-
-    let card = {'x': pile.x + pile.cards.length*card_scale*0.4, 'y': pile.y, 'card': card_id};
+    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id};
     pile.cards.push(card);
 
     all_cards.push(card);
