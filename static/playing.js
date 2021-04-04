@@ -30,9 +30,9 @@ var w, h;
 var canvas;
 var game_data;
 var canvas_scale = 1.5;
-var all_cards = [];
 var is_dragging = false;
-const card_scale = 0.065;
+var dragged_card = undefined;
+const card_scale = 0.055;
 const card_ar = 1.55;
 var piles = {};
 var hand_size;
@@ -81,12 +81,6 @@ function start(_game_id, _player_name) {
     canvas.addEventListener("mousedown", on_mouse_down);
     canvas.addEventListener("mouseup", on_mouse_up);
     canvas.addEventListener("mousemove", on_mouse_move);
-
-    /* some test cards
-    all_cards.push({'x': 0.1, 'y':0.1, 'card':"1s"},
-                   {'x': 0.1, 'y':0.5, 'card':"5h"},
-                   {'x': 0.5, 'y': 0.1, 'card': "back"});
-    */
 }
 
 var images_loaded = false;
@@ -155,8 +149,6 @@ function place_card(card_str, is_up, pile_id) {
     let pile = piles[pile_id];
     let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id};
     pile.cards.push(card);
-
-    all_cards.push(card);
 }
 
 function on_mouse_down(e) {
@@ -166,27 +158,34 @@ function on_mouse_down(e) {
     let card_w = card_scale;
     let card_h = card_w*card_ar*2;
 
-    let dragged_card_index = -1;
-    for (var i = 0; i < all_cards.length; ++i) {
-        // Check if you are clicking inside that card
-        let card = all_cards[i];
-        if ((mouse_x > card.x) && 
+    let found_key = undefined;
+    let found_i = -1;
+
+    for (let key in piles) {
+        let pile = piles[key];
+        let cards = pile.cards;
+        for (let i = 0; i < cards.length; ++i) {
+            let card = cards[i];
+            if ((mouse_x > card.x) && 
             (mouse_y > card.y) && 
             (mouse_x < card.x + card_w) && 
             (mouse_y < card.y + card_h)) {
-            if (card.card != "back") { // cannot drag flipped cards
-                dragged_card_index = i;
+                if (card.card != "back") { // cannot drag flipped cards
+                    found_i = i;
+                    found_key = key;
+                }
             }
-            
         }
     }
 
-    if (dragged_card_index > -1) {
-        // Place that card at the end of all_cards to make sure it's drawn on top
-        let card = all_cards[dragged_card_index];
-        all_cards.splice(dragged_card_index, 1);
-        all_cards.push(card);
+    if (found_i > -1) {
+        let pile = piles[found_key];
+        let cards = pile.cards;
+        let card = cards[found_i];
+        cards.splice(found_i, 1);
+        dragged_card = card;
         is_dragging = true;
+        card["comes_from"] = found_key;
     }
     
 }
@@ -196,14 +195,20 @@ function on_mouse_move(e) {
         let card_w = card_scale;
         let card_h = card_w*card_ar;
 
-        all_cards[all_cards.length - 1].x = canvas_scale*e.offsetX/w - card_w/2;
-        all_cards[all_cards.length - 1].y = canvas_scale*e.offsetY/h - card_h;
+        dragged_card.x = canvas_scale*e.offsetX/w - card_w/2;
+        dragged_card.y = canvas_scale*e.offsetY/h - card_h;
     }
 }
 
 function on_mouse_up(e) {
+    if (is_dragging) {
+        let pile = piles[dragged_card.comes_from];
+        pile.cards.push(dragged_card);
+    }
+
     is_dragging = false;
 }
+
 
 function main_loop() {
     update();
@@ -220,9 +225,16 @@ function draw() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
 
-    for (let i = 0; i < all_cards.length; ++i) {
-        let card = all_cards[i];
-        draw_card(ctx, card.card, card.x, card.y, 1.0);
+    for (let key in piles) {
+        let pile = piles[key];
+        for (let i = 0; i < pile.cards.length; ++i) {
+            let card = pile.cards[i];
+            draw_card(ctx, card.card, card.x, card.y, 1.0);
+        }
+    }
+
+    if (is_dragging) {
+        draw_card(ctx, dragged_card.card, dragged_card.x, dragged_card.y, 1.1);
     }
 
     if (game_data) {
@@ -230,7 +242,7 @@ function draw() {
         for (let i = 0; i < game_data.players.length; ++i) {
             let player = game_data.players[i];
             let pile = piles[player];
-            ctx.fillText(player, w*(pile.x+0.005), h*(pile.y-0.005));   
+            ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
         }
     }
     
