@@ -129,7 +129,7 @@ function load_state(in_data) {
             y = 0.02;
             n_piles++;
         }
-        let pile = {'x': x, 'y': y, 'cards': []};
+        let pile = {'x': x, 'y': y, 'cards': [], 'w': hand_size - 0.005, 'h': card_ar*card_scale*2, 'is_hand': true};
         piles[player] = pile;
         
         let hand = hands[player];
@@ -152,42 +152,40 @@ function place_card(card_str, is_up, pile_id) {
 }
 
 function on_mouse_down(e) {
-    let mouse_x = canvas_scale*e.offsetX/w;
-    let mouse_y = canvas_scale*e.offsetY/h;
+    if (!is_dragging) {
+        let mouse_x = canvas_scale*e.offsetX/w;
+        let mouse_y = canvas_scale*e.offsetY/h;
 
-    let card_w = card_scale;
-    let card_h = card_w*card_ar*2;
+        let card_w = card_scale;
+        let card_h = card_w*card_ar*2;
 
-    let found_key = undefined;
-    let found_i = -1;
+        let found_key = undefined;
+        let found_i = -1;
 
-    for (let key in piles) {
-        let pile = piles[key];
-        let cards = pile.cards;
-        for (let i = 0; i < cards.length; ++i) {
-            let card = cards[i];
-            if ((mouse_x > card.x) && 
-            (mouse_y > card.y) && 
-            (mouse_x < card.x + card_w) && 
-            (mouse_y < card.y + card_h)) {
-                if (card.card != "back") { // cannot drag flipped cards
-                    found_i = i;
-                    found_key = key;
+        for (let key in piles) {
+            let pile = piles[key];
+            let cards = pile.cards;
+            for (let i = 0; i < cards.length; ++i) {
+                let card = cards[i];
+                if ((mouse_x > card.x) && (mouse_y > card.y) && (mouse_x < card.x + card_w) && (mouse_y < card.y + card_h)) {
+                    if (card.card != "back") { // cannot drag flipped cards
+                        found_i = i;
+                        found_key = key;
+                    }
                 }
             }
         }
-    }
 
-    if (found_i > -1) {
-        let pile = piles[found_key];
-        let cards = pile.cards;
-        let card = cards[found_i];
-        cards.splice(found_i, 1);
-        dragged_card = card;
-        is_dragging = true;
-        card["comes_from"] = found_key;
+        if (found_i > -1) {
+            let pile = piles[found_key];
+            let cards = pile.cards;
+            let card = cards[found_i];
+            cards.splice(found_i, 1);
+            dragged_card = card;
+            is_dragging = true;
+            card["comes_from"] = found_key;
+        }
     }
-    
 }
 
 function on_mouse_move(e) {
@@ -202,11 +200,34 @@ function on_mouse_move(e) {
 
 function on_mouse_up(e) {
     if (is_dragging) {
-        let pile = piles[dragged_card.comes_from];
-        pile.cards.push(dragged_card);
-    }
+        let mouse_x = canvas_scale*e.offsetX/w;
+        let mouse_y = canvas_scale*e.offsetY/h;
 
-    is_dragging = false;
+        // Go through piles and see if the card is being dropped on one of them
+        let found_key = undefined;
+        for (let key in piles) {
+            let pile = piles[key];
+            if (mouse_x > pile.x && mouse_y > pile.y && mouse_x < pile.x + pile.w && mouse_y < pile.y + pile.h) {
+                if (pile.is_hand) {
+                    // The only hand you can drop on is your own
+                    if (key == dragged_card.comes_from) {
+                        found_key = key;
+                    }
+                } else {
+                    found_key = key;
+                }
+            }
+        }
+
+        if (found_key) {
+            let pile = piles[found_key];
+            pile.cards.push(dragged_card);
+
+            dragged_card = undefined;
+            is_dragging = false;
+        }
+        
+    }
 }
 
 
@@ -227,6 +248,11 @@ function draw() {
 
     for (let key in piles) {
         let pile = piles[key];
+
+        ctx.beginPath();
+        ctx.rect(pile.x*w, pile.y*h, pile.w*w, pile.h*h);
+        ctx.stroke();
+
         for (let i = 0; i < pile.cards.length; ++i) {
             let card = pile.cards[i];
             draw_card(ctx, card.card, card.x, card.y, 1.0);
