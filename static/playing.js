@@ -36,6 +36,9 @@ const card_scale = 0.055;
 const card_ar = 1.55;
 var piles = {};
 var hand_size;
+var pile_columns = 3;
+var pile_width = 1/pile_columns;
+var pile_height = card_ar*card_scale*2;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -129,14 +132,28 @@ function load_state(in_data) {
             y = 0.02;
             n_piles++;
         }
-        let pile = {'x': x, 'y': y, 'cards': [], 'w': hand_size - 0.005, 'h': card_ar*card_scale*2, 'is_hand': true};
+        let pile = {'x': x, 'y': y, 'cards': [], 'w': hand_size - 0.005, 'h': pile_height, 'is_hand': true};
         piles[player] = pile;
         
         let hand = hands[player];
         hand.forEach(card_str => {
             place_card(card_str, player==player_name, player);
         });
-        
+    }
+
+    // Initialize other piles
+    for (let key in game_data.piles) {
+        let in_pile = game_data.piles[key];
+        let pile_id = parseInt(in_pile.ID);
+
+        let x = ((pile_id-1)%pile_columns) * pile_width;
+        let y = (Math.floor((pile_id-1)/pile_columns) + 1) * (pile_height + 0.01) + 0.1;
+        let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, cards: []};
+        piles[pile_id] = pile;
+
+        for (let i = 0; i < in_pile.cards.length; ++i) {
+            place_card(in_pile.cards[i], true, pile_id);
+        }
     }
 }
 
@@ -147,7 +164,7 @@ function place_card(card_str, is_up, pile_id) {
     }
 
     let pile = piles[pile_id];
-    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id};
+    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id, 'belongs_to': pile_id};
     pile.cards.push(card);
 }
 
@@ -210,7 +227,7 @@ function on_mouse_up(e) {
             if (mouse_x > pile.x && mouse_y > pile.y && mouse_x < pile.x + pile.w && mouse_y < pile.y + pile.h) {
                 if (pile.is_hand) {
                     // The only hand you can drop on is your own
-                    if (key == dragged_card.comes_from) {
+                    if (key == dragged_card.belongs_to) {
                         found_key = key;
                     }
                 } else {
