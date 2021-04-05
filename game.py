@@ -5,6 +5,25 @@ from pathlib import Path
 
 from cards import Card, Deck
 
+def validate_player_name(player_id):
+  if player_id in ["true", "false", "", None, "undefined", "0"]:
+    return False
+  
+  # If the player's name can be converted to an integer or float, it is not allowed
+  try:
+    _ = int(player_id)
+    return False
+  except:
+    pass
+
+  try:
+    _ = float(player_id)
+    return False
+  except:
+    pass
+
+  return True
+
 class Pile:
   def __init__(self, cards=[]):
     self.cards = list()
@@ -207,6 +226,9 @@ class Game:
 
   def __init__(self, player_ids, is_local=False, game_name="Untitled_game"):
     self.player_ids = list(player_ids)
+    if any([not validate_player_name(player_id) for player_id in self.player_ids]):
+      raise ValueError("One of the player names is not allowed!")
+
     self.turns = cycle(self.player_ids)
     
     self.piles = dict()
@@ -380,7 +402,7 @@ class Game:
     pile = self.piles[from_id]
     pile.cards.remove(card)
     self.hands[self.turn].append(card)
-    
+
   def retreat(self):
     # the player wants all their cards back
 

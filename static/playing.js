@@ -168,7 +168,7 @@ function place_card(card_str, is_up, pile_id) {
         card_id = "back";
     }
 
-    let belongs_to = pile_id;
+    let belongs_to = false;
     let card_description = splot[1];
     for (let i = 0; i < player_names.length; ++i) {
         if (card_description.includes('(' + player_names[i] + ')')) {
@@ -304,12 +304,12 @@ function draw() {
 
         for (let i = 0; i < pile.cards.length; ++i) {
             let card = pile.cards[i];
-            draw_card(ctx, card.card, card.x, card.y, 1.0);
+            draw_card(ctx, card, 1.0);
         }
     }
 
     if (is_dragging) {
-        draw_card(ctx, dragged_card.card, dragged_card.x, dragged_card.y, 1.1);
+        draw_card(ctx, dragged_card, 1.1);
     }
 
     if (game_data) {
@@ -323,8 +323,16 @@ function draw() {
     
 }
 
-function draw_card(ctx, card_ID, x, y, scale=1.0) {
+function draw_card(ctx, card, scale=1.0) {
+    let card_ID = card.card;
+    let x = card.x;
+    let y = card.y;
     // x and y are relative to the board's size 
+
+    if (card.belongs_to) {
+        ctx.shadowColor = 'rgba(0, 0, 0, .7)';
+        ctx.shadowBlur = 10;
+    }
 
     let card_w = w*card_scale*scale;
     let card_h = card_ar*card_w;
@@ -332,6 +340,9 @@ function draw_card(ctx, card_ID, x, y, scale=1.0) {
     if (images_loaded) {
         ctx.drawImage(images[card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h)
     }
+
+    ctx.shadowBlur = 0;
+
 }
 
 setInterval(main_loop, 0.05);
