@@ -24,6 +24,8 @@ window.onload = () => {
     }
 }
 
+var your_turn = false;
+var current_player;
 var player_name;
 var player_names;
 var game_id;
@@ -113,6 +115,9 @@ function load_images(urls) {
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
     
+    your_turn = game_data.turn == player_name;
+    current_player = game_data.turn;
+
     let players = game_data.players;
     let player_in_game = game_data.players_in_game;
     let hands = game_data.hands;
@@ -182,6 +187,10 @@ function place_card(card_str, is_up, pile_id) {
 }
 
 function on_mouse_down(e) {
+    if (!your_turn) {
+        return;
+    }
+
     if (!is_dragging) {
         let mouse_x = canvas_scale*e.offsetX/w;
         let mouse_y = canvas_scale*e.offsetY/h;
@@ -218,6 +227,10 @@ function on_mouse_down(e) {
 }
 
 function on_mouse_move(e) {
+    if (!your_turn) {
+        return;
+    }
+
     if (is_dragging) {
         let card_w = card_scale;
         let card_h = card_w*card_ar;
@@ -228,6 +241,10 @@ function on_mouse_move(e) {
 }
 
 function on_mouse_up(e) {
+    if (!your_turn) {
+        return;
+    }
+
     if (is_dragging) {
         let mouse_x = canvas_scale*e.offsetX/w;
         let mouse_y = canvas_scale*e.offsetY/h;
@@ -279,10 +296,10 @@ function update() {
 }
 
 function draw() {
-       
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
+    ctx.font = "18px Arial";
 
     for (let key in piles) {
         let pile = piles[key];
@@ -320,6 +337,13 @@ function draw() {
             ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
         }
     }
+
+    if (!your_turn) {
+        ctx.textAlign = "center";
+        
+        ctx.fillText(current_player + "'s turn, please wait...", w/2, h - 20);
+        ctx.textAlign = "left";
+    }
     
 }
 
@@ -346,10 +370,18 @@ function draw_card(ctx, card, scale=1.0) {
 }
 
 function button_pressed_keso() {
+    if (!your_turn) {
+        return;
+    }
 
+    httpGetAsync("/keso?game_id=" + game_id + "&player=" + player_name, refresh_if_okay);
 }
 
 function button_pressed_retreat() {
+    if (!your_turn) {
+        return;
+    }
+
     alert("ALL YOUR BASE ARE BELONG TO US!");
 }
 

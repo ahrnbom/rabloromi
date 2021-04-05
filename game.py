@@ -228,6 +228,9 @@ class Game:
     self.player_ids = list(player_ids)
     if any([not validate_player_name(player_id) for player_id in self.player_ids]):
       raise ValueError("One of the player names is not allowed!")
+    
+    if not len(set(self.player_ids)) == len(self.player_ids):
+      raise ValueError("The same name occurs more than once!")
 
     self.turns = cycle(self.player_ids)
     

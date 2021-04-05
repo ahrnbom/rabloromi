@@ -140,6 +140,34 @@ def move_card():
   game.save(game_id)
   return "ok", 200
 
+@api.route("/keso", methods=['GET'])
+def keso():
+  game_id = request.args.get('game_id', type=str, default=None)
+  player = request.args.get('player', type=str, default=None)
+
+  if game_id is None:
+    return "No game provided", 400
+
+  if player is None:
+    return "No player provided", 400
+
+  try:
+    game = Game.load(game_id)
+  except ValueError as err:
+    return f"Something went wrong: {err}", 400 
+  except:
+    return "Failed to load game due to some unforeseen error", 400
+  
+  if not player == game.turn:
+    return "Not your turn", 400
+
+  out, _ = game.finish()
+  if not out:
+    return "You still have cards on the table!", 400
+
+  game.save(game_id)
+  return "ok", 200
+
 if __name__ == '__main__':
   unpack_files()
   api.run()
