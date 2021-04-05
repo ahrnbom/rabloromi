@@ -145,10 +145,11 @@ function load_state(in_data) {
     for (let key in game_data.piles) {
         let in_pile = game_data.piles[key];
         let pile_id = parseInt(in_pile.ID);
+        let pile_ok = in_pile.valid == "yes";
 
         let x = ((pile_id-1)%pile_columns) * pile_width;
         let y = (Math.floor((pile_id-1)/pile_columns) + 1) * (pile_height + 0.01) + 0.1;
-        let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, cards: []};
+        let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': pile_ok, cards: []};
         piles[pile_id] = pile;
 
         for (let i = 0; i < in_pile.cards.length; ++i) {
@@ -267,6 +268,17 @@ function draw() {
         let pile = piles[key];
 
         ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "black";
+        ctx.setLineDash([]);
+        if (!pile.is_hand) {
+            if (pile.is_ok) {
+                ctx.strokeStyle = "darkgreen";
+            } else {
+                ctx.strokeStyle = "red";
+                ctx.setLineDash([5, 5]);
+            }
+        }
         ctx.rect(pile.x*w, pile.y*h, pile.w*w, pile.h*h);
         ctx.stroke();
 
