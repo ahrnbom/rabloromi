@@ -97,7 +97,20 @@ def move_card():
 
   if from_pile == player:
     # Trying to play a card from the hand
-    pass
+    to_pile = int(to_pile)
+    if to_pile == -1:
+      to_pile = None 
+      # Create a new pile
+
+    card = game.find_card(card_name, player)
+    if card is None:
+      return f"Could not find card {card_name} in {player}'s hand", 400
+    
+    try:
+      game.place_card(card, to_pile)
+    except Exception as err:
+      return f"Something went wrong: {err}", 400
+    
   elif to_pile == player:
     # Trying to take a card into the hand
     pass
