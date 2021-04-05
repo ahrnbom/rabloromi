@@ -84,7 +84,7 @@ def main():
       
       card = game.find_card_in_pile(card_name, from_pile)
       if card is None:
-        print(f"Card {card_name} not found in pile {pile_id}")
+        print(f"Card {card_name} not found in pile {from_pile}")
       
       try:
         game.move_card(card, from_pile, to_pile)

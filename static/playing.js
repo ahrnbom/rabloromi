@@ -241,6 +241,8 @@ function on_mouse_up(e) {
             let pile = piles[found_key];
             pile.cards.push(dragged_card);
 
+            httpGetAsync("/move_card?game_id=" + game_id + "&player=" + player_name + "&card=" + dragged_card.card + "&to=" + found_key + "&from=" + dragged_card.belongs_to, refresh_if_okay);
+
             dragged_card = undefined;
             is_dragging = false;
         }
@@ -248,6 +250,13 @@ function on_mouse_up(e) {
     }
 }
 
+function refresh_if_okay(result) {
+    if (result=="ok") {
+        httpGetAsync("/view_game?game_id=" + game_id, load_state);
+    } else {
+        alert(result);
+    }
+}
 
 function main_loop() {
     update();

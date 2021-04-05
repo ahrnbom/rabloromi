@@ -73,6 +73,50 @@ def view_game():
 
   return game.json(), 200
 
+@api.route('/move_card', methods=['GET'])
+def move_card():
+  game_id = request.args.get('game_id', type=str, default=None)
+  player = request.args.get('player', type=str, default=None)
+  card_name = request.args.get('card', type=str, default=None)
+  from_pile = request.args.get('from', type=str, default=None)
+  to_pile = request.args.get('to', type=str, default=None)
+
+  inputs = [game_id, player, card_name, from_pile, to_pile]
+  if any([x is None for x in inputs]):
+    return "Some input variable is missing", 400
+
+  try:
+    game = Game.load(game_id)
+  except ValueError as err:
+    return f"Something went wrong: {err}", 400 
+  except:
+    return "Failed to load game due to some unforeseen error", 400
+  
+  if not (player == game.turn):
+    return "Not your turn!", 400
+
+  if from_pile == player:
+    # Trying to play a card from the hand
+    pass
+  elif to_pile == player:
+    # Trying to take a card into the hand
+    pass
+  else:
+    # Move a card already on the board
+    from_pile, to_pile = [int(x) for x in (from_pile, to_pile)]
+
+    card = game.find_card_in_pile(card_name, from_pile)
+    if card is None:
+      return f"Could not find card {card_name} in {from_pile}", 400
+    
+    try:
+      game.move_card(card, from_pile, to_pile)
+    except ValueError as err:
+        return f"Something went wrong: {err}", 400
+
+  game.save(game_id)
+  return "ok", 200
+
 if __name__ == '__main__':
   unpack_files()
   api.run()
