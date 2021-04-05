@@ -345,4 +345,12 @@ function draw_card(ctx, card, scale=1.0) {
 
 }
 
+function button_pressed_keso() {
+
+}
+
+function button_pressed_retreat() {
+    alert("ALL YOUR BASE ARE BELONG TO US!");
+}
+
 setInterval(main_loop, 0.05);
