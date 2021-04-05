@@ -1,11 +1,22 @@
 from flask import Flask, json, Response, request
 from pathlib import Path
 import uuid
+from random import choice
 
 from game import Game
 from unpack import unpack_files
 
 api = Flask(__name__)
+
+possible_words = ['milk', 'almond', 'nut', 'chestnut', 'beast', 'animal', 'crossing', 'mellow', 'relaxed', 'relaxation', 'realization', 'short', 'tall', 'object', 'yard', 'pale', 'circle', 'square', 'shape', 'array', 'wizard', 'shadow', 'life', 'creative', 'super', 'mega', 'giga', 'impact', 'slow', 'fast', 'spring', 'autumn', 'summer','winter', 'thing', 'stuff', 'tomato', 'basil', 'mozzarella', 'city', 'cow', 'car', 'electric', 'boogaloo', 'worm', 'skitter', 'tattletale', 'grue', 'angelica', 'brutus', 'pineapple', 'north', 'west', 'south', 'east', 'yeast', 'bread', 'pankujou', 'timotei', 'orange', 'red', 'blue', 'green', 'yellow', 'slick_black', 'fish', 'linux', 'ALL_YOUR_BASE_ARE_BELONG_TO_US', 'WHAT_HAPPEN', 'FOR_GREAT_JUSTICE', 'MOVE_ZIG', 'JUSTICE_FOR_BARB', 'lingonberries', 'ham', 'sandwich', 'vegan', 'pizza', 'OS', 'wat', 'yes', 'no', 'hmm', 'lol', 'sorry', 'epic', 'fail', 'hamburger', 'milkshake', 'asereje', 'bunny', 'horse', 'horse', 'horse', 'secret', 'mystery', 'critical', 'radical', 'juice', 'image', 'AI', 'blockchain', 'creepy', 'megusta', 'LEEROY_JENKINS', 'katamari', 'turtle', 'graphics', 'common', 'rare', 'integrated', 'massive', 'damage', 'clever', 'giant', 'enemy', 'crab', 'sallad', 'pesto', 'toilet', 'tv', 'watch', 'clock', 'block', 'stock', 'dock', 'rock', 'knock', 'duck', 'quack', 'hello', 'world', 'horse', 'octopus', 'arm', 'leg', 'foot', 'head', 'flower', 'sky', 'tree', 'grass', 'water', 'fire', 'earth', 'air', 'fart', 'clown', 'heart', 'spades', 'clubs', 'joker', 'open', 'your', 'eyes', 'I', 'see', 'are']
+print(len(possible_words))
+def get_words(n):
+  words = list()
+  
+  for _ in range(n):
+    words.append(choice(possible_words))
+  
+  return words
 
 def ok_str(s):
   assert(isinstance(s, str))
@@ -50,12 +61,14 @@ def host_game():
   
   if not game_name:
     # Make something up 
-    game_name = f"Untitled_{uuid.uuid4()}"
+    words = get_words(4)
+    words.append(str(uuid.uuid4())[:4])
+    game_name = '_'.join(words)
   
   game = Game(players, game_name=game_name)
   game.save()
   
-  return f"Successfully created game {game_name}", 200
+  return f"{game_name}", 200
 
 @api.route('/view_game', methods=['GET'])
 def view_game():

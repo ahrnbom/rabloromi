@@ -56,9 +56,9 @@ function host_game() {
     
 }
 
-function host_response() {
+function host_response(game_name) {
     var p = document.getElementById("host_response");
-    p.innerHTML = "Hosted game successfully!";
+    p.innerHTML = "Hosted game successfully! Game name: " + game_name;
 }
 
 
@@ -94,7 +94,7 @@ function get_games_response(games_string) {
         game_div.className = "game_in_list";
 
         var p = document.createElement("p");
-        p.innerHTML = game_name + " (" + game_id + ")";
+        p.innerHTML = "Game name: " + game_id; // game_name + " (" + game_id + ")";
         game_div.appendChild(p);
 
         var p = document.createElement("p");
@@ -108,8 +108,11 @@ function get_games_response(games_string) {
 
         var button = document.createElement("button");       
         button.onclick = create_clickevent(game_id, player_name);
-        button.innerHTML = "Join game " + game_id;
+        button.innerHTML = "Join game";
         game_div.appendChild(button);
+
+        var p2 = document.createElement("p");
+        game_div.appendChild(p2);
 
         games_list.appendChild(game_div);
 

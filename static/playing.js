@@ -269,8 +269,10 @@ function on_mouse_up(e) {
             let pile = piles[found_key];
             pile.cards.push(dragged_card);
 
-            httpGetAsync("/move_card?game_id=" + game_id + "&player=" + player_name + "&card=" + dragged_card.card + "&to=" + found_key + "&from=" + dragged_card.comes_from, refresh_if_okay);
-
+            if (found_key != dragged_card.comes_from) {
+                httpGetAsync("/move_card?game_id=" + game_id + "&player=" + player_name + "&card=" + dragged_card.card + "&to=" + found_key + "&from=" + dragged_card.comes_from, refresh_if_okay);
+            }
+            
             dragged_card = undefined;
             is_dragging = false;
         }
