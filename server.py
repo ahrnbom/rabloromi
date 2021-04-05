@@ -113,7 +113,17 @@ def move_card():
     
   elif to_pile == player:
     # Trying to take a card into the hand
-    pass
+    from_pile = int(from_pile)
+
+    card = game.find_card_in_pile(card_name, from_pile)
+    if card is None:
+      return f"Could not find card {card_name} in pile {from_pile}", 400
+    
+    try:
+      game.take_back(card, from_pile)
+    except ValueError as err:
+      return f"Something went wrong: {err}", 400
+
   else:
     # Move a card already on the board
     from_pile, to_pile = [int(x) for x in (from_pile, to_pile)]

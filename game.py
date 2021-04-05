@@ -373,6 +373,14 @@ class Game:
     
     return True, card
   
+  def take_back(self, card, from_id):
+    if not card.owner == self.turn:
+      raise ValueError("Tried to take back a card that does not belong to you")
+
+    pile = self.piles[from_id]
+    pile.cards.remove(card)
+    self.hands[self.turn].append(card)
+    
   def retreat(self):
     # the player wants all their cards back
 
@@ -394,7 +402,7 @@ class Game:
     self.restore_initial_state(remaining_cards)
     
   def json(self):
-    # get a json summary of the state of the game
+    # get a json description of the state of the game
     obj = dict()
   
     obj['players'] = self.player_ids

@@ -25,6 +25,7 @@ window.onload = () => {
 }
 
 var player_name;
+var player_names;
 var game_id;
 var w, h;
 var canvas;
@@ -116,6 +117,8 @@ function load_state(in_data) {
     let player_in_game = game_data.players_in_game;
     let hands = game_data.hands;
 
+    player_names = players;
+
     hand_size = 1.0 / players.length;
     let n_piles = 0;
 
@@ -159,13 +162,22 @@ function load_state(in_data) {
 }
 
 function place_card(card_str, is_up, pile_id) {
-    let card_id = card_str.split(':')[0];
+    let splot = card_str.split(':');
+    let card_id = splot[0];
     if (!is_up) {
         card_id = "back";
     }
 
+    let belongs_to = pile_id;
+    let card_description = splot[1];
+    for (let i = 0; i < player_names.length; ++i) {
+        if (card_description.includes('(' + player_names[i] + ')')) {
+            belongs_to = player_names[i];
+        }
+    }
+    
     let pile = piles[pile_id];
-    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id, 'belongs_to': pile_id};
+    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id};
     pile.cards.push(card);
 }
 
@@ -201,7 +213,6 @@ function on_mouse_down(e) {
             cards.splice(found_i, 1);
             dragged_card = card;
             is_dragging = true;
-            card["comes_from"] = found_key;
         }
     }
 }
@@ -241,7 +252,7 @@ function on_mouse_up(e) {
             let pile = piles[found_key];
             pile.cards.push(dragged_card);
 
-            httpGetAsync("/move_card?game_id=" + game_id + "&player=" + player_name + "&card=" + dragged_card.card + "&to=" + found_key + "&from=" + dragged_card.belongs_to, refresh_if_okay);
+            httpGetAsync("/move_card?game_id=" + game_id + "&player=" + player_name + "&card=" + dragged_card.card + "&to=" + found_key + "&from=" + dragged_card.comes_from, refresh_if_okay);
 
             dragged_card = undefined;
             is_dragging = false;
