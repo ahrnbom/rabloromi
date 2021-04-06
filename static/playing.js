@@ -124,23 +124,35 @@ function load_state(in_data) {
 
     player_names = players;
 
-    hand_size = 1.0 / players.length;
-    let n_piles = 0;
+    let your_hand_size;
+    if (players.length < 4) {
+        hand_size = (1.0 - 0.01) / players.length;
+        your_hand_size = hand_size;
+    } else {
+        your_hand_size = (1.0 - 0.01) / 4;
+        
+        // Everyone's except yours
+        hand_size = (1.0 - 0.01 - your_hand_size) / (players.length - 1);
+    }
+    
+    let x_prev = 0.01;
 
     // Initialize piles with player hands
     for (let i = 0; i < players.length; ++i) {
         let player = players[i];
-        let x, y;
+        let x;
+        let y = 1 - 0.02 - pile_height;
+
+        let the_hand_size;
         if (player == player_name) {
-            // This player is me
-            x = 0.01;
-            y = 0.02;
+            the_hand_size = your_hand_size;
         } else {
-            x = 0.01 + hand_size*(n_piles+1);
-            y = 0.02;
-            n_piles++;
+            the_hand_size = hand_size;
         }
-        let pile = {'x': x, 'y': y, 'cards': [], 'w': hand_size - 0.005, 'h': pile_height, 'is_hand': true};
+        x = x_prev;
+        x_prev = x + the_hand_size;
+
+        let pile = {'x': x, 'y': y, 'cards': [], 'w': the_hand_size - 0.005, 'h': pile_height, 'is_hand': true};
         piles[player] = pile;
         
         let hand = hands[player];
@@ -156,7 +168,7 @@ function load_state(in_data) {
         let pile_ok = in_pile.valid == "yes";
 
         let x = ((pile_id-1)%pile_columns) * pile_width;
-        let y = (Math.floor((pile_id-1)/pile_columns) + 1) * (pile_height + 0.01) + 0.1;
+        let y = (Math.floor((pile_id-1)/pile_columns) + 0.2) * (pile_height + 0.01) + 0.001;
         let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': pile_ok, cards: []};
         piles[pile_id] = pile;
 
@@ -340,12 +352,13 @@ function draw() {
         }
     }
 
+    ctx.textAlign = "center";
     if (!your_turn) {
-        ctx.textAlign = "center";
-        
-        ctx.fillText(current_player + "'s turn, please wait...", w/2, h - 20);
-        ctx.textAlign = "left";
+        ctx.fillText(current_player + "'s turn, please wait...", w/2, 20);
+    } else {
+        ctx.fillText("Your turn!", w/2, 20);
     }
+    ctx.textAlign = "left";
     
 }
 
