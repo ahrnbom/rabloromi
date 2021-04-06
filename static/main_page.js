@@ -58,7 +58,8 @@ function host_game() {
 
 function host_response(game_name) {
     var p = document.getElementById("host_response");
-    p.innerHTML = "Hosted game successfully! Game name: " + game_name;
+    p.innerHTML = "Hosted game successfully! Game name: " + game_name + '<br>' +
+    '<a href=/static/invite.html?game_name=' + game_name + '>Invite link here!</a>';
 }
 
 
