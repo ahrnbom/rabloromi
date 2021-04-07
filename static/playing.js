@@ -427,7 +427,7 @@ function button_pressed_retreat() {
         return;
     }
 
-    alert("ALL YOUR BASE ARE BELONG TO US!");
+    httpGetAsync("/retreat?game_id=" + game_id + "&player=" + player_name, refresh_if_okay);
 }
 
 setInterval(main_loop, 0.05);

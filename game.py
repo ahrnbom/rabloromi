@@ -425,6 +425,8 @@ class Game:
       remaining_cards.extend(pile.cards)
     
     self.restore_initial_state(remaining_cards)
+
+    return True
     
   def json(self):
     # get a json description of the state of the game
