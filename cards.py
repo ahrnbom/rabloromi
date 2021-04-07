@@ -73,7 +73,7 @@ class Card:
     return s
     
 class Deck:
-  def __init__(self, jokers=4):
+  def __init__(self, jokers=6):
     # rablorömi uses two decks with a varying amount of jokers
     # more jokers makes the game easier and faster
     

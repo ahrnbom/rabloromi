@@ -6,7 +6,7 @@ function httpGetAsync(url, callback)
             if (xmlHttp.status == 200)
                 callback(xmlHttp.responseText);
             else 
-                alert("Server error on url " + url + " with " + xmlHttp.status + " and message '" + xmlHttp.responseText);
+                alert("Server error (" + xmlHttp.status + "): " + xmlHttp.responseText);
         } 
     }
     xmlHttp.open("GET", url, true); 
@@ -166,10 +166,15 @@ function load_state(in_data) {
     }
 
     // Initialize other piles
+    let highest_pile_id = 0;
     for (let key in game_data.piles) {
         let in_pile = game_data.piles[key];
         let pile_id = parseInt(in_pile.ID);
         let pile_ok = in_pile.valid == "yes";
+
+        if (pile_id > highest_pile_id) {
+            highest_pile_id = pile_id;
+        }
 
         let x = ((pile_id-1)%pile_columns) * pile_width;
         let y = (Math.floor((pile_id-1)/pile_columns) + 0.2) * (pile_height + 0.01) + 0.001;
@@ -180,6 +185,14 @@ function load_state(in_data) {
             place_card(in_pile.cards[i], true, pile_id);
         }
     }
+
+    // Finally, create the final always empty pile
+    let pile_id = highest_pile_id + 1;
+    let x = ((pile_id-1)%pile_columns) * pile_width;
+    let y = (Math.floor((pile_id-1)/pile_columns) + 0.2) * (pile_height + 0.01) + 0.001;
+    let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': true, cards: []};
+    piles[pile_id] = pile;
+
 }
 
 function place_card(card_str, is_up, pile_id, tightness=undefined) {
@@ -322,6 +335,7 @@ function draw() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
     ctx.font = "18px Arial";
+    ctx.fillStyle = "#000000";
 
     for (let key in piles) {
         let pile = piles[key];
@@ -345,6 +359,12 @@ function draw() {
             let card = pile.cards[i];
             draw_card(ctx, card, 1.0, no_shadow=pile.is_hand);
         }
+
+        if (pile.cards.length == 0) {
+            ctx.textAlign = "center";
+            ctx.fillText("This pile is empty!", (pile.x + pile.w/2)*w, (pile.y + pile.h/2)*h);
+            ctx.textAlign = "left";
+        }
     }
 
     if (is_dragging) {
@@ -352,7 +372,7 @@ function draw() {
     }
 
     if (game_data) {
-        ctx.fillStyle = "#000000";
+        
         for (let i = 0; i < game_data.players.length; ++i) {
             let player = game_data.players[i];
             let pile = piles[player];
