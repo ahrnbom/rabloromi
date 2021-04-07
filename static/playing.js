@@ -37,7 +37,7 @@ var is_dragging = false;
 var dragged_card = undefined;
 const card_scale = 0.055;
 const card_ar = 1.55;
-var piles = {};
+var piles;
 var hand_size;
 var pile_columns = 3;
 var pile_width = 1/pile_columns;
@@ -115,6 +115,8 @@ function load_images(urls) {
 
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
+
+    piles = {}; // Needs to be reset here to make sure retreat works in edge cases
 
     cards_in_deck = game_data['cards_in_deck'];
     
