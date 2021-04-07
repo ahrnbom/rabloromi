@@ -41,7 +41,7 @@ var piles = {};
 var hand_size;
 var pile_columns = 3;
 var pile_width = 1/pile_columns;
-var pile_height = card_ar*card_scale*2;
+var pile_height = card_ar*card_scale*2 + 0.01;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -156,8 +156,9 @@ function load_state(in_data) {
         piles[player] = pile;
         
         let hand = hands[player];
+        let tightness = (the_hand_size - card_scale) / hand.length;
         hand.forEach(card_str => {
-            place_card(card_str, player==player_name, player);
+            place_card(card_str, player==player_name, player, tightness=tightness);
         });
     }
 
@@ -178,7 +179,7 @@ function load_state(in_data) {
     }
 }
 
-function place_card(card_str, is_up, pile_id) {
+function place_card(card_str, is_up, pile_id, tightness=undefined) {
     let splot = card_str.split(':');
     let card_id = splot[0];
     if (!is_up) {
@@ -193,8 +194,12 @@ function place_card(card_str, is_up, pile_id) {
         }
     }
     
+    if (!tightness) {
+        tightness = card_scale*0.33;
+    }
+
     let pile = piles[pile_id];
-    let card = {'x': pile.x + pile.cards.length*card_scale*0.33, 'y': pile.y, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id};
+    let card = {'x': pile.x + pile.cards.length*tightness + 0.002, 'y': pile.y + 0.003, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id};
     pile.cards.push(card);
 }
 
