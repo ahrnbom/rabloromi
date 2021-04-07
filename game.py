@@ -407,7 +407,8 @@ class Game:
     self.hands[self.turn].append(card)
 
   def retreat(self):
-    # the player wants all their cards back
+    # the player wants all their cards back, 
+    # resetting everything to how it was at the start of this turn
 
     for pile in self.piles.values():
       to_remove = list()

@@ -180,6 +180,7 @@ def retreat():
     return "Not your turn", 400
 
   result = game.retreat()
+  game.save(game_id)
 
   if result:
     return "ok", 200
