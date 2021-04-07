@@ -28,6 +28,7 @@ var your_turn = false;
 var current_player;
 var player_name;
 var player_names;
+var player_in_game;
 var game_id;
 var w, h;
 var canvas;
@@ -124,8 +125,15 @@ function load_state(in_data) {
     current_player = game_data.turn;
 
     let players = game_data.players;
-    let player_in_game = game_data.players_in_game;
+    let players_in_game = game_data.players_in_game;
     let hands = game_data.hands;
+
+    player_in_game = false;
+    for (let i = 0; i < players_in_game.length; ++i) {
+        if (player == players_in_game[i]) {
+            player_in_game = true;
+        }
+    }
 
     player_names = players;
 
@@ -363,8 +371,6 @@ function draw() {
             ctx.textAlign = "left";
         }
     }
-
-    
     
     for (let i = 0; i < game_data.players.length; ++i) {
         let player = game_data.players[i];
@@ -380,6 +386,13 @@ function draw() {
     } else {
         ctx.fillText("Your turn!", w/2, 20);
     }
+    
+
+    if (!player_in_game) {
+        ctx.textAlign = "right";
+        ctx.fillText("You are in the game! ", w, h*0.02);
+    }
+
     ctx.textAlign = "left";
     
     if (is_dragging) {
