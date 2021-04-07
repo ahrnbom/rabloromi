@@ -93,6 +93,9 @@ class Deck:
       
     shuffle(self.cards)
     
+  def __len__(self):
+    return len(self.cards)
+
   def draw(self):
     if self.is_empty():
       return None

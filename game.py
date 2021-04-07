@@ -434,6 +434,8 @@ class Game:
     
     obj['players_in_game'] = list(self.players_in_game)
   
+    obj['cards_in_deck'] = len(self.deck)
+
     obj['hands'] = dict()
     for player_id in self.player_ids:
       hand = self.hands[player_id]

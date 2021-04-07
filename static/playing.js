@@ -42,6 +42,7 @@ var hand_size;
 var pile_columns = 3;
 var pile_width = 1/pile_columns;
 var pile_height = card_ar*card_scale*2 + 0.01;
+var cards_in_deck;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -114,6 +115,8 @@ function load_images(urls) {
 
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
+
+    cards_in_deck = game_data['cards_in_deck'];
     
     your_turn = game_data.turn == player_name;
     current_player = game_data.turn;
@@ -355,6 +358,8 @@ function draw() {
             let pile = piles[player];
             ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
         }
+
+        ctx.fillText(String(cards_in_deck) + " cards left in deck", w*0.005, h*0.02);
     }
 
     ctx.textAlign = "center";
