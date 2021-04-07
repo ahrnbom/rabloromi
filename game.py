@@ -253,6 +253,8 @@ class Game:
     self.save_initial_state()
     
     self.name = game_name
+
+    self.cannot_retreat = False
   
   def save(self, game_id=None):
     if game_id is None:
@@ -320,7 +322,14 @@ class Game:
       for old_card in to_pile.cards:
         if not (old_card.owner == self.turn):
           raise ValueError(f"Player {self.turn} is not in the game yet! You need to first play a valid pile from your hand, before you can interact with others' cards")
-    
+
+      # Check if the player should now be considered to be in the game
+      if to_pile.validate() and len(to_pile.cards)>2:
+        # Player is now in the game
+        # Cards in this pile are then "taken away" to prevent them from being taken back to the hand
+        self.players_in_game.add(self.turn)
+        self.cannot_retreat = True
+
     to_pile.add(card)
     
     self.hands[self.turn].remove(card)
@@ -351,24 +360,9 @@ class Game:
     for pile_id, pile in self.piles.items():
       if not pile.validate():
         return False, None
-    
-    if not (self.turn in self.players_in_game):
-      # Check if the player is in the game now
-      in_game_now = False
-      
-      for pile_id, pile in self.piles.items():
-        ok = True
-        
-        for card in pile.cards:
-          if not (card.owner == self.turn):
-            ok = False
-        
-        if ok:
-          in_game_now = True
-      
-      if in_game_now:
-        self.players_in_game.add(self.turn)
-        
+
+    self.cannot_retreat = False
+
     # Now, all your cards belong to the table!
     has_played = False
     for pile_id, pile in self.piles.items():
@@ -407,6 +401,9 @@ class Game:
     self.hands[self.turn].append(card)
 
   def retreat(self):
+    if self.cannot_retreat:
+      return False
+
     # the player wants all their cards back, 
     # resetting everything to how it was at the start of this turn
 

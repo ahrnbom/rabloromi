@@ -104,9 +104,13 @@ def main():
         print("Turn could not finish! You still have some invalid piles on the table")
     
     elif action == 'retreat':
-      game.retreat()
-      print(f"Took back all {game.turn}'s cards")
-    
+      result = game.retreat()
+
+      if result:
+        print(f"Took back all {game.turn}'s cards")
+      else:
+        print("Cannot retreat the same turn you got into the game!")
+        
     elif action.startswith('save'):
       game_id = action.split(' ')[1]
       game.save(game_id)

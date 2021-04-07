@@ -180,12 +180,11 @@ def retreat():
     return "Not your turn", 400
 
   result = game.retreat()
-  game.save(game_id)
-
   if result:
+    game.save(game_id)
     return "ok", 200
   else:
-    return "Something went terribly wrong during retreat", 400
+    return "Cannot retreat the same turn you got into the game!", 400
 
 @api.route("/keso", methods=['GET'])
 def keso():

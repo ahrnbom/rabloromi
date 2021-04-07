@@ -39,7 +39,7 @@ const card_scale = 0.055;
 const card_ar = 1.55;
 var piles;
 var hand_size;
-var pile_columns = 3;
+var pile_columns = 4;
 var pile_width = 1/pile_columns;
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
@@ -323,12 +323,11 @@ function refresh_if_okay(result) {
     }
 }
 
-function main_loop() {
-    update();
-    draw();
-}
-
 function draw() {
+    if (game_data === undefined) {
+        return;
+    }
+    
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
@@ -365,21 +364,16 @@ function draw() {
         }
     }
 
-    if (is_dragging) {
-        draw_card(ctx, dragged_card, 1.1);
+    
+    
+    for (let i = 0; i < game_data.players.length; ++i) {
+        let player = game_data.players[i];
+        let pile = piles[player];
+        ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
     }
 
-    if (game_data) {
-        
-        for (let i = 0; i < game_data.players.length; ++i) {
-            let player = game_data.players[i];
-            let pile = piles[player];
-            ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
-        }
-
-        ctx.fillText(String(cards_in_deck) + " cards left in deck", w*0.005, h*0.02);
-    }
-
+    ctx.fillText(String(cards_in_deck) + " cards left in deck", w*0.005, h*0.02);
+    
     ctx.textAlign = "center";
     if (!your_turn) {
         ctx.fillText(current_player + "'s turn, please wait...", w/2, 20);
@@ -388,6 +382,9 @@ function draw() {
     }
     ctx.textAlign = "left";
     
+    if (is_dragging) {
+        draw_card(ctx, dragged_card, 1.1);
+    }
 }
 
 function draw_card(ctx, card, scale=1.0, no_shadow=false) {
@@ -405,7 +402,7 @@ function draw_card(ctx, card, scale=1.0, no_shadow=false) {
     let card_h = card_ar*card_w;
 
     if (images_loaded) {
-        ctx.drawImage(images[card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h)
+        ctx.drawImage(images[card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h);
     }
 
     ctx.shadowBlur = 0;
@@ -414,6 +411,7 @@ function draw_card(ctx, card, scale=1.0, no_shadow=false) {
 
 function button_pressed_keso() {
     if (!your_turn) {
+        alert("Not your turn!");
         return;
     }
 
@@ -422,18 +420,19 @@ function button_pressed_keso() {
 
 function button_pressed_retreat() {
     if (!your_turn) {
+        alert("Not your turn!");
         return;
     }
 
     httpGetAsync("/retreat?game_id=" + game_id + "&player=" + player_name, refresh_if_okay);
 }
-
-var main_loop_tick = 0.05;
+var draw_tick = 0.1;
+var update_tick = 0.05;
 var update_time = 0.0;
 var ping_time = 1.0 / (3 + Math.random()); // Between 3 and 4 per second
 var ping_counter = 0;
 function update() {
-    update_time += main_loop_tick;
+    update_time += update_tick;
     if (update_time >= ping_time) {
         update_time = 0.0;
 
@@ -449,4 +448,5 @@ function update() {
     }
 }
 
-setInterval(main_loop, main_loop_tick);
+setInterval(draw, draw_tick);
+setInterval(update, update_tick);
