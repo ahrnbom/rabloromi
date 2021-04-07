@@ -328,10 +328,6 @@ function main_loop() {
     draw();
 }
 
-function update() {
-
-}
-
 function draw() {
     let ctx = canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
@@ -432,4 +428,25 @@ function button_pressed_retreat() {
     httpGetAsync("/retreat?game_id=" + game_id + "&player=" + player_name, refresh_if_okay);
 }
 
-setInterval(main_loop, 0.05);
+var main_loop_tick = 0.05;
+var update_time = 0.0;
+var ping_time = 1.0 / (3 + Math.random()); // Between 3 and 4 per second
+var ping_counter = 0;
+function update() {
+    update_time += main_loop_tick;
+    if (update_time >= ping_time) {
+        update_time = 0.0;
+
+        // Ping real time stuff here
+
+        ++ping_counter;
+        if (ping_counter >= 20) {
+            ping_counter = 0;
+
+            if (current_player != player_name) 
+                httpGetAsync("/view_game?game_id=" + game_id, load_state);
+        }
+    }
+}
+
+setInterval(main_loop, main_loop_tick);
