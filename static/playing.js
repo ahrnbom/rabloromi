@@ -130,7 +130,7 @@ function load_state(in_data) {
 
     player_in_game = false;
     for (let i = 0; i < players_in_game.length; ++i) {
-        if (player == players_in_game[i]) {
+        if (player_name == players_in_game[i]) {
             player_in_game = true;
         }
     }
@@ -375,7 +375,8 @@ function draw() {
     for (let i = 0; i < game_data.players.length; ++i) {
         let player = game_data.players[i];
         let pile = piles[player];
-        ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
+        if (pile !== undefined)
+            ctx.fillText(player + "'s hand", w*(pile.x+0.005), h*(pile.y-0.005));   
     }
 
     ctx.fillText(String(cards_in_deck) + " cards left in deck", w*0.005, h*0.02);
