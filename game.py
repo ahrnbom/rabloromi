@@ -325,6 +325,7 @@ class Game:
 
     to_pile.add(card)
     self.hands[self.turn].remove(card)
+    assert(card.owner == self.turn)
 
     # Check if the player should now be considered to be in the game
     if not (self.turn in self.players_in_game):

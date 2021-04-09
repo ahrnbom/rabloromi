@@ -117,6 +117,20 @@ function load_images(urls) {
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
 
+    // Adjust number of columns if necessary
+    let pile_count = 0;
+    for (let key in game_data.piles) {
+        pile_count++;
+    }
+    if (pile_count > 14) {
+        pile_columns = 6;
+        pile_width = 1/pile_columns;
+    } 
+    if (pile_count > 17) {
+        pile_columns = 7;
+        pile_width = 1/pile_columns;
+    }
+        
     piles = {}; // Needs to be reset here to make sure retreat works in edge cases
 
     cards_in_deck = game_data['cards_in_deck'];
@@ -169,7 +183,7 @@ function load_state(in_data) {
         piles[player] = pile;
         
         let hand = hands[player];
-        let tightness = Math.min((the_hand_size - card_scale) / hand.length, 0.05);
+        let tightness = Math.min((the_hand_size - card_scale) / hand.length, card_scale);
         hand.forEach(card_str => {
             place_card(card_str, player==player_name, player, tightness=tightness);
         });
