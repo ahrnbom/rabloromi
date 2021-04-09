@@ -251,10 +251,10 @@ class Game:
     self.players_in_game = set()
     
     self.save_initial_state()
-    
+  
     self.name = game_name
-
     self.cannot_retreat = False
+    self.winner = None
   
   def save(self, game_id=None):
     if game_id is None:
@@ -387,8 +387,6 @@ class Game:
     else:
       card = None
     
-    self.turn = self.next_turn()
-    
     pile_id_to_remove = list()
     for pile_id, pile in self.piles.items():
       if not pile.cards:
@@ -397,6 +395,11 @@ class Game:
     for pile_id in pile_id_to_remove:
       self.piles.pop(pile_id)
     
+    # Check if the player has won
+    if len(self.hands[self.turn]) == 0:
+      self.winner = self.turn
+
+    self.turn = self.next_turn()
     self.save_initial_state()
     
     return True, card
@@ -438,6 +441,11 @@ class Game:
   def json(self):
     # get a json description of the state of the game
     obj = dict()
+
+    if self.winner is not None:
+      obj['winner'] = self.winner
+    else:
+      obj['winner'] = None
   
     obj['players'] = self.player_ids
     

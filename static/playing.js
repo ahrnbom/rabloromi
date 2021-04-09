@@ -117,6 +117,11 @@ function load_images(urls) {
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
 
+    if (game_data.winner) {
+        alert(game_data.winner + " has won! Congratulations!");
+    }
+
+
     // Adjust number of columns if necessary
     let pile_count = 0;
     for (let key in game_data.piles) {
