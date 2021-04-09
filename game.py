@@ -324,18 +324,18 @@ class Game:
           raise ValueError(f"Player {self.turn} is not in the game yet! You need to first play a valid pile from your hand, before you can interact with others' cards")
 
     to_pile.add(card)
-    
-    # Check if the player should now be considered to be in the game
-    if len(to_pile.cards)>0 and to_pile.validate():
-      # Player is now in the game
-      # Cards in this pile are then "taken away" to prevent them from being taken back to the hand
-      self.players_in_game.add(self.turn)
-      self.cannot_retreat = True
-      for old_card in to_pile.cards:
-        old_card.owner = None
-
     self.hands[self.turn].remove(card)
-  
+
+    # Check if the player should now be considered to be in the game
+    if not (self.turn in self.players_in_game):
+      if len(to_pile.cards)>0 and to_pile.validate():
+        # Player is now in the game
+        # Cards in this pile are then "taken away" to prevent them from being taken back to the hand
+        self.players_in_game.add(self.turn)
+        self.cannot_retreat = True
+        for old_card in to_pile.cards:
+          old_card.owner = None
+
   def move_card(self, card, from_id, to_id=None):
     # to_id == None means create a new pile
     
