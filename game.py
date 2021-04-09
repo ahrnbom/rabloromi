@@ -331,8 +331,8 @@ class Game:
       # Cards in this pile are then "taken away" to prevent them from being taken back to the hand
       self.players_in_game.add(self.turn)
       self.cannot_retreat = True
-      for card in to_pile.cards:
-        card.owner = None
+      for old_card in to_pile.cards:
+        old_card.owner = None
 
     self.hands[self.turn].remove(card)
   
