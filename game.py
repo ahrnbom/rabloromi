@@ -363,6 +363,9 @@ class Game:
       if not pile.validate():
         return False, None
 
+    # If the player just "came out" then it may be that no cards belong to that player
+    # It still shouldn't have to draw a card that turn!
+    has_definitely_played = self.cannot_retreat
     self.cannot_retreat = False
 
     # Now, all your cards belong to the table!
@@ -373,6 +376,9 @@ class Game:
           card.owner = None
           has_played = True
     
+    if has_definitely_played:
+      has_played = True
+
     if not has_played:
       card = self.deck.draw()
       card.owner = self.turn
