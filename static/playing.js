@@ -40,7 +40,7 @@ const card_scale = 0.055;
 const card_ar = 1.55;
 var piles;
 var hand_size;
-var pile_columns = 4;
+var pile_columns = 5;
 var pile_width = 1/pile_columns;
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
@@ -169,7 +169,7 @@ function load_state(in_data) {
         piles[player] = pile;
         
         let hand = hands[player];
-        let tightness = (the_hand_size - card_scale) / hand.length;
+        let tightness = Math.min((the_hand_size - card_scale) / hand.length, 0.05);
         hand.forEach(card_str => {
             place_card(card_str, player==player_name, player, tightness=tightness);
         });
@@ -391,7 +391,7 @@ function draw() {
 
     if (!player_in_game) {
         ctx.textAlign = "right";
-        ctx.fillText("You are in the game! ", w, h*0.02);
+        ctx.fillText("You are not in the game! ", w, h*0.02);
     }
 
     ctx.textAlign = "left";
