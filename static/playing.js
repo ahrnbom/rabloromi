@@ -191,9 +191,11 @@ function load_state(in_data) {
 
     // Initialize other piles
     let highest_pile_id = 0;
-    for (let key in game_data.piles) {
-        let in_pile = game_data.piles[key];
-        let pile_id = parseInt(in_pile.ID);
+    for (let pile_id = 0; pile_id < pile_count; ++pile_id) {
+        let in_pile = game_data.piles[pile_id];
+        if (in_pile===undefined) {
+            in_pile = {'valid': "yes", 'cards': []};
+        }
         let pile_ok = in_pile.valid == "yes";
 
         if (pile_id > highest_pile_id) {
