@@ -196,8 +196,9 @@ function load_state(in_data) {
 
     // Initialize other piles
     let highest_pile_id = 0;
-    for (let pile_id = 0; pile_id < pile_count; ++pile_id) {
-        let in_pile = game_data.piles[pile_id];
+    for (let i = 0; i < pile_count; ++i) {
+        let pile_id = i+1; // One based, for some reason
+        let in_pile = game_data.piles[String(pile_id)];
         if (in_pile===undefined) {
             in_pile = {'valid': "yes", 'cards': []};
         }
@@ -212,8 +213,9 @@ function load_state(in_data) {
         let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': pile_ok, cards: []};
         piles[pile_id] = pile;
 
+        let tightness = Math.min((pile_width - card_scale) / in_pile.cards.length, card_scale);
         for (let i = 0; i < in_pile.cards.length; ++i) {
-            place_card(in_pile.cards[i], true, pile_id);
+            place_card(in_pile.cards[i], true, pile_id, tightness=tightness);
         }
     }
 
