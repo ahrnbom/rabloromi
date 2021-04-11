@@ -45,6 +45,8 @@ var pile_columns = 5;
 var pile_width = 1/pile_columns;
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
+var prev_hand;
+var new_card;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -244,6 +246,29 @@ function load_state(in_data) {
 
     // Finally, redraw lower canvas
     draw_lower();
+
+    // Finally, see if you just got a new card
+    let curr_hand = piles[player_name].cards;
+    new_card = undefined;
+    if (prev_hand !== undefined) {
+        for (let i = 0; i < curr_hand.length; ++i) {
+            let curr_card = curr_hand[i];
+
+            let found = false;
+            for (let j = 0; j < prev_hand.length; ++j) {
+                let prev_card = prev_hand[j];
+
+                if (curr_card.card == prev_card.card) {
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                new_card = curr_card;
+            }
+        }
+    }
+    prev_hand = curr_hand;
 }
 
 function place_card(card_str, is_up, pile_id, tightness=undefined) {
@@ -404,9 +429,19 @@ function draw_lower() {
         ctx.rect(pile.x*w, pile.y*h, pile.w*w, pile.h*h);
         ctx.stroke();
 
+        let have_drawn_new = false;
         for (let i = 0; i < pile.cards.length; ++i) {
             let card = pile.cards[i];
-            draw_card(ctx, card, 1.0, no_shadow=pile.is_hand);
+            
+            extra_mark = false;
+            if (key == player_name && new_card !== undefined && !have_drawn_new) {
+                if (card.card == new_card.card) {
+                    have_drawn_new = true;
+                    extra_mark = true;
+                }
+            }
+
+            draw_card(ctx, card, 1.0, no_shadow=pile.is_hand, extra_mark=extra_mark);
         }
 
         if (pile.cards.length == 0) {
@@ -450,7 +485,7 @@ function draw_upper() {
     }
 }
 
-function draw_card(ctx, card, scale=1.0, no_shadow=false) {
+function draw_card(ctx, card, scale=1.0, no_shadow=false, extra_mark=false) {
     let card_ID = card.card;
     let x = card.x;
     let y = card.y;
@@ -470,6 +505,11 @@ function draw_card(ctx, card, scale=1.0, no_shadow=false) {
 
     ctx.shadowBlur = 0;
 
+    if (extra_mark) {
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h);
+    }
 }
 
 function button_pressed_keso() {
