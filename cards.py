@@ -8,7 +8,7 @@ class Card:
   max_rank = 13
 
   long_suits = {'c': 'clubs', 'd': 'diamonds', 'h': 'hearts', 's': 'spades', 'j': 'joker'}
-  suit_values = {'s': 0, 'd': 100, 'h': 200, 'c': 300, 'j':10000000}
+  suit_values = {'s': 0, 'd': 100, 'h': 300, 'c': 200, 'j':10000000}
   
   @staticmethod
   def rank_name(rank):
