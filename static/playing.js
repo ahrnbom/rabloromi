@@ -205,7 +205,14 @@ function load_state(in_data) {
 
     // Initialize other piles
     let highest_pile_id = 0;
-    for (let i = 0; i < pile_count; ++i) {
+    for (let key in game_data.piles) {
+        let key_int = parseInt(key);
+        if (key_int > highest_pile_id) {
+            highest_pile_id = key_int;
+        }
+    }
+
+    for (let i = 0; i < Math.max(pile_count, highest_pile_id); ++i) {
         let pile_id = i+1; // One based, for some reason
         let in_pile = game_data.piles[String(pile_id)];
         if (in_pile===undefined) {
@@ -432,8 +439,6 @@ function draw_lower() {
     }
 
     ctx.textAlign = "left";
-    
-    
 }
 
 function draw_upper() {
