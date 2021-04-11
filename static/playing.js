@@ -47,6 +47,7 @@ var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
 var prev_hand;
 var new_card;
+var winner;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -129,7 +130,7 @@ function load_state(in_data) {
     game_data = JSON.parse(in_data);
 
     if (game_data.winner) {
-        alert(game_data.winner + " has won! Congratulations!");
+        winner = game_data.winner;
     }
 
 
@@ -461,11 +462,16 @@ function draw_lower() {
     ctx.fillText(String(cards_in_deck) + " cards left in deck", w*0.005, h*0.02);
     
     ctx.textAlign = "center";
-    if (!your_turn) {
-        ctx.fillText(current_player + "'s turn, please wait...", w/2, 20);
+    if (winner !== undefined) {
+        ctx.fillText(winner + " has won. Congratulations!", w/2, 20);
     } else {
-        ctx.fillText("Your turn!", w/2, 20);
+        if (!your_turn) {
+            ctx.fillText(current_player + "'s turn, please wait...", w/2, 20);
+        } else {
+            ctx.fillText("Your turn!", w/2, 20);
+        }
     }
+    
     
 
     if (!player_in_game) {
@@ -474,6 +480,7 @@ function draw_lower() {
     }
 
     ctx.textAlign = "left";
+
 }
 
 function draw_upper() {
@@ -512,6 +519,20 @@ function draw_card(ctx, card, scale=1.0, no_shadow=false, extra_mark=false) {
     }
 }
 
+function card_dance() {
+    for (let key in piles) {
+        let pile = piles[key];
+        let cards = pile.cards;
+        for (let i = 0; i < cards.length; ++i) {
+            let card = cards[i];
+
+            card.x += 0.01*(Math.random() - 0.5);
+            card.y += 0.01*(Math.random() - 0.5);
+        }
+    }
+    draw_lower();
+}
+
 function button_pressed_keso() {
     if (!your_turn) {
         alert("Not your turn!");
@@ -537,6 +558,10 @@ var update_time = 0.0;
 var ping_time = 1.0 / (3 + Math.random()); // Between 3 and 4 per second
 var ping_counter = 0;
 function update() {
+    if (winner !== undefined) {
+        card_dance();
+    }
+
     update_time += update_tick;
     if (update_time >= ping_time) {
         update_time = 0.0;
