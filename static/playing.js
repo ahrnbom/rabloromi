@@ -244,9 +244,6 @@ function load_state(in_data) {
     let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': true, cards: []};
     piles[pile_id] = pile;
 
-    // Finally, redraw lower canvas
-    draw_lower();
-
     // Finally, see if you just got a new card
     let curr_hand = piles[player_name].cards;
     new_card = undefined;
@@ -269,6 +266,9 @@ function load_state(in_data) {
         }
     }
     prev_hand = curr_hand;
+
+    // Finally, redraw lower canvas
+    draw_lower();
 }
 
 function place_card(card_str, is_up, pile_id, tightness=undefined) {
