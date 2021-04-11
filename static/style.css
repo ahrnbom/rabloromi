@@ -47,8 +47,10 @@ div.game_container {
     border-style: solid;
     border-color: darkgreen;
     border-width: 0.01cm;
-    width:90%;
+    width: 90%;
+    height: 680;
     margin:auto;
+    position: relative;
 }
 
 div.buttons {
@@ -60,9 +62,12 @@ button.game_button {
     margin: 10px;
 }
 
-canvas {
+canvas.game_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 680;
+    height: 100%;
 }
 
 div.centered {

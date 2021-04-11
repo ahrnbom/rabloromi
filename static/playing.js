@@ -31,7 +31,8 @@ var player_names;
 var player_in_game;
 var game_id;
 var w, h;
-var canvas;
+var lower_canvas;
+var upper_canvas;
 var game_data;
 var canvas_scale = 1.5;
 var is_dragging = false;
@@ -49,27 +50,34 @@ function start(_game_id, _player_name) {
     player_name = _player_name;
     game_id = _game_id;
     
-    canvas = document.getElementById("game_canvas");
+    lower_canvas = document.getElementById("lower_game_canvas");
+    upper_canvas = document.getElementById("upper_game_canvas");
 
-    w = canvas.clientWidth * canvas_scale;
-    h = canvas.clientHeight * canvas_scale;
+    w = lower_canvas.clientWidth * canvas_scale;
+    h = lower_canvas.clientHeight * canvas_scale;
 
-    canvas.width = w;
-    canvas.height = h;
+    lower_canvas.width = w;
+    lower_canvas.height = h;
 
-    var ctx = canvas.getContext("2d");
+    upper_canvas.width = w;
+    upper_canvas.height = h;
+
+    let ctx = lower_canvas.getContext("2d");
     ctx.clearRect(0, 0, w, h);
     ctx.font = "16px Arial";
     ctx.fillText("Loading the game " + game_id + "...", 20, 20);
 
+    ctx = upper_canvas.getContext("2d");
+    ctx.clearRect(0, 0, w, h);
+
     httpGetAsync("/view_game?game_id=" + game_id, load_state);
 
-    var card_list = ["cards/joker.png",
+    let card_list = ["cards/joker.png",
                      "cards/back.png"
                     ];
-    var suits = ['s', 'h', 'c', 'd'];
-    for (var val = 1; val < 14; ++val) {
-        for (var suit_id = 0; suit_id < 4; ++suit_id) {
+    let suits = ['s', 'h', 'c', 'd'];
+    for (let val = 1; val < 14; ++val) {
+        for (let suit_id = 0; suit_id < 4; ++suit_id) {
             if (val == 11) {
                 val_name = 'j';
             } else if (val == 12) {
@@ -80,15 +88,15 @@ function start(_game_id, _player_name) {
                 val_name = String(val);
             }
 
-            var card_name = val_name + suits[suit_id];
+            let card_name = val_name + suits[suit_id];
             card_list.push("cards/" + card_name + ".png");
         }
     }
     load_images(card_list);
 
-    canvas.addEventListener("mousedown", on_mouse_down);
-    canvas.addEventListener("mouseup", on_mouse_up);
-    canvas.addEventListener("mousemove", on_mouse_move);
+    upper_canvas.addEventListener("mousedown", on_mouse_down);
+    upper_canvas.addEventListener("mouseup", on_mouse_up);
+    upper_canvas.addEventListener("mousemove", on_mouse_move);
 }
 
 var images_loaded = false;
@@ -105,6 +113,7 @@ function load_images(urls) {
 
             if (n_images_loaded == n_images_to_load) {
                 images_loaded = true;
+                draw_lower();
             }
         }
         img.src = urls[i];
@@ -226,6 +235,8 @@ function load_state(in_data) {
     let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': true, cards: []};
     piles[pile_id] = pile;
 
+    // Finally, redraw lower canvas
+    draw_lower();
 }
 
 function place_card(card_str, is_up, pile_id, tightness=undefined) {
@@ -289,6 +300,8 @@ function on_mouse_down(e) {
             dragged_card = card;
             is_dragging = true;
         }
+
+        draw_lower();
     }
 }
 
@@ -343,6 +356,7 @@ function on_mouse_up(e) {
             is_dragging = false;
         }
         
+        draw_lower();
     }
 }
 
@@ -354,12 +368,12 @@ function refresh_if_okay(result) {
     }
 }
 
-function draw() {
+function draw_lower() {
     if (game_data === undefined) {
         return;
     }
     
-    let ctx = canvas.getContext("2d");
+    let ctx = lower_canvas.getContext("2d");
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, w, h);
     ctx.font = "18px Arial";
@@ -419,6 +433,13 @@ function draw() {
 
     ctx.textAlign = "left";
     
+    
+}
+
+function draw_upper() {
+    let ctx = upper_canvas.getContext("2d");
+    ctx.clearRect(0, 0, w, h);
+
     if (is_dragging) {
         draw_card(ctx, dragged_card, 1.1);
     }
@@ -463,8 +484,10 @@ function button_pressed_retreat() {
 
     httpGetAsync("/retreat?game_id=" + game_id + "&player=" + player_name, refresh_if_okay);
 }
-var draw_tick = 0.1;
-var update_tick = 0.05;
+
+// In seconds
+var draw_tick = 1.0/60;
+var update_tick = 1.0/60;
 var update_time = 0.0;
 var ping_time = 1.0 / (3 + Math.random()); // Between 3 and 4 per second
 var ping_counter = 0;
@@ -476,7 +499,7 @@ function update() {
         // Ping real time stuff here
 
         ++ping_counter;
-        if (ping_counter >= 20) {
+        if (ping_counter >= 10) {
             ping_counter = 0;
 
             if (current_player != player_name) 
@@ -485,5 +508,6 @@ function update() {
     }
 }
 
-setInterval(draw, draw_tick);
-setInterval(update, update_tick);
+// These take milliseconds
+setInterval(draw_upper, 1000*draw_tick);
+setInterval(update, 1000*update_tick);
