@@ -2,6 +2,7 @@ from itertools import cycle
 import json
 import pickle
 from pathlib import Path
+from random import randint
 
 from cards import Card, Deck
 
@@ -242,8 +243,10 @@ class Game:
     
     for player_id in player_ids:
       self.hands[player_id] = self.deck.draw_hand(player_id)
-      
-    self.turn = self.next_turn()
+
+    # Randomize who starts
+    for _ in range(randint(0, len(player_ids))):  
+      self.turn = self.next_turn()
     
     self.is_local = is_local
     
