@@ -245,11 +245,9 @@ class Game:
       self.hands[player_id] = self.deck.draw_hand(player_id)
 
     # Randomize who starts
-    for _ in range(randint(0, len(player_ids))):  
+    for _ in range(randint(0, len(player_ids)+1)):  
       self.turn = self.next_turn()
     
-    print(self.turn)
-
     self.is_local = is_local
     
     # Players who have played a valid pile from their hand are in the game, and their IDs are stored here
