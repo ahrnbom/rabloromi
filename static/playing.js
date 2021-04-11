@@ -37,7 +37,7 @@ var game_data;
 var canvas_scale = 1.5;
 var is_dragging = false;
 var dragged_card = undefined;
-const card_scale = 0.055;
+const card_scale = 0.05;
 const card_ar = 1.55;
 var piles;
 var hand_size;
