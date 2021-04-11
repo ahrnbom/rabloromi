@@ -225,7 +225,7 @@ class Game:
     
     return game
 
-  def __init__(self, player_ids, is_local=False, game_name="Untitled_game"):
+  def __init__(self, player_ids, is_local=False, game_name="Untitled_game", skip_join=False):
     self.player_ids = list(player_ids)
     if any([not validate_player_name(player_id) for player_id in self.player_ids]):
       raise ValueError("One of the player names is not allowed!")
@@ -248,10 +248,17 @@ class Game:
     for _ in range(randint(0, len(player_ids))):  
       self.turn = self.next_turn()
     
+    print(self.turn)
+
     self.is_local = is_local
     
     # Players who have played a valid pile from their hand are in the game, and their IDs are stored here
+    # The so-called "join rule"
     self.players_in_game = set()
+    if skip_join:
+      # By letting all players be in the game from the start, the "join rule" is skipped
+      for player in player_ids:
+        self.players_in_game.add(player)
     
     self.save_initial_state()
   

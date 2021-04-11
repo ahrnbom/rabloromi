@@ -48,8 +48,10 @@ function host_game() {
             names.push(name);
     }
 
+    let skip_join = document.getElementById("skip_join_rule").value;
+
     if (ok) {
-        httpGetAsync("host?players="+String(names), host_response);
+        httpGetAsync("host?players="+String(names) + "&skip_join=" + skip_join, host_response);
     } else {
         alert("Some illegal characters in name!")
     }

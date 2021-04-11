@@ -69,8 +69,10 @@ def host_game():
     words = get_words(4)
     words.append(str(uuid.uuid4())[:4])
     game_name = '_'.join(words)
+
+  skip_join = request.args.get('skip_join', type=bool, default=False)
   
-  game = Game(players, game_name=game_name)
+  game = Game(players, game_name=game_name, skip_join=skip_join)
   game.save()
   
   return f"{game_name}", 200
