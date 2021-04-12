@@ -245,7 +245,7 @@ class Game:
       self.hands[player_id] = self.deck.draw_hand(player_id)
 
     # Randomize who starts
-    for _ in range(randint(0, len(player_ids)+1)):  
+    for _ in range(randint(1, 100)):  
       self.turn = self.next_turn()
     
     self.is_local = is_local

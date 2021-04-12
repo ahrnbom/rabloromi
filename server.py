@@ -238,7 +238,7 @@ def read_time_pos():
     if game_id in real_time_positions:
       return real_time_positions[game_id].json(), 200
   elif request.method == 'POST':
-    json_data = request.args.get('json', type=str, default=None)
+    json_data = request.get_json()
     if json_data is None:
       return "No JSON provided", 400
     real_time_positions[game_id] = RealTimePosition.from_json(json_data)

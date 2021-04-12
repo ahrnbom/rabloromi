@@ -1,6 +1,5 @@
-function httpGetAsync(url, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
+function httpGetAsync(url, callback) {
+    let xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4) {
             if (xmlHttp.status == 200)
@@ -9,8 +8,23 @@ function httpGetAsync(url, callback)
                 alert("Server error (" + xmlHttp.status + "): " + xmlHttp.responseText);
         } 
     }
-    xmlHttp.open("GET", url, true); 
+    xmlHttp.open('GET', url, true); 
     xmlHttp.send(null);
+}
+
+function httpPostAsync(url, data, callback) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4) {
+            if (xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+            else 
+                alert("Server error (" + xmlHttp.status + "): " + xmlHttp.responseText);
+        } 
+    }
+    xmlHttp.open('POST', url, true); 
+    xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xmlHttp.send(data);
 }
 
 window.onload = () => {
@@ -48,6 +62,7 @@ var cards_in_deck;
 var prev_hand;
 var new_card;
 var winner;
+var mouse_x, mouse_y;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -302,8 +317,8 @@ function on_mouse_down(e) {
     }
 
     if (!is_dragging) {
-        let mouse_x = canvas_scale*e.offsetX/w;
-        let mouse_y = canvas_scale*e.offsetY/h;
+        mouse_x = canvas_scale*e.offsetX/w;
+        mouse_y = canvas_scale*e.offsetY/h;
 
         let card_w = card_scale;
         let card_h = card_w*card_ar*2;
@@ -343,12 +358,15 @@ function on_mouse_move(e) {
         return;
     }
 
+    mouse_x = canvas_scale*e.offsetX/w;
+    mouse_y = canvas_scale*e.offsetY/h;
+
     if (is_dragging) {
         let card_w = card_scale;
         let card_h = card_w*card_ar;
 
-        dragged_card.x = canvas_scale*e.offsetX/w - card_w/2;
-        dragged_card.y = canvas_scale*e.offsetY/h - card_h;
+        dragged_card.x = mouse_x - card_w/2;
+        dragged_card.y = mouse_y - card_h;
     }
 }
 
@@ -358,8 +376,8 @@ function on_mouse_up(e) {
     }
 
     if (is_dragging) {
-        let mouse_x = canvas_scale*e.offsetX/w;
-        let mouse_y = canvas_scale*e.offsetY/h;
+        mouse_x = canvas_scale*e.offsetX/w;
+        mouse_y = canvas_scale*e.offsetY/h;
 
         // Go through piles and see if the card is being dropped on one of them
         let found_key = undefined;
@@ -566,7 +584,7 @@ function update() {
     if (update_time >= ping_time) {
         update_time = 0.0;
 
-        // Ping real time stuff here
+        real_time_update();
 
         ++ping_counter;
         if (ping_counter >= 10) {
@@ -576,6 +594,24 @@ function update() {
                 httpGetAsync("/view_game?game_id=" + game_id, load_state);
         }
     }
+}
+
+function real_time_update() {
+    if (your_turn) {
+        if (mouse_x !== undefined && mouse_y !== undefined) {
+            let obj = {'x': mouse_x, 'y': mouse_y, 'card': "", 'from_pile': ""};
+            if (dragged_card !== undefined) {
+                obj.card = dragged_card.card;
+                obj.from_pile = dragged_card.comes_from;
+            }
+            let json_str = JSON.stringify(obj);
+            httpPostAsync("/real_time_pos?game_id=" + game_id, json_str, nada);
+        }
+    }
+}
+
+function nada() {
+    // nothing
 }
 
 // These take milliseconds
