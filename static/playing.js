@@ -63,6 +63,7 @@ var prev_hand;
 var new_card;
 var winner;
 var mouse_x, mouse_y;
+var received_mouse_x, received_mouse_y;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -90,8 +91,9 @@ function start(_game_id, _player_name) {
 
     httpGetAsync("/view_game?game_id=" + game_id, load_state);
 
-    let card_list = ["cards/joker.png",
-                     "cards/back.png"
+    let im_list =   ["cards/joker.png",
+                     "cards/back.png",
+                     "other/cursor.png"
                     ];
     let suits = ['s', 'h', 'c', 'd'];
     for (let val = 1; val < 14; ++val) {
@@ -107,10 +109,10 @@ function start(_game_id, _player_name) {
             }
 
             let card_name = val_name + suits[suit_id];
-            card_list.push("cards/" + card_name + ".png");
+            im_list.push("cards/" + card_name + ".png");
         }
     }
-    load_images(card_list);
+    load_images(im_list);
 
     upper_canvas.addEventListener("mousedown", on_mouse_down);
     upper_canvas.addEventListener("mouseup", on_mouse_up);
@@ -147,7 +149,6 @@ function load_state(in_data) {
     if (game_data.winner) {
         winner = game_data.winner;
     }
-
 
     // Adjust number of columns if necessary
     let pile_count = 0;
@@ -508,6 +509,10 @@ function draw_upper() {
     if (is_dragging) {
         draw_card(ctx, dragged_card, 1.1);
     }
+
+    if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
+        ctx.drawImage(images["cursor.png"], Math.round(received_mouse_x*w)+0.5, Math.round(received_mouse_y*h)+0.5);
+    }
 }
 
 function draw_card(ctx, card, scale=1.0, no_shadow=false, extra_mark=false) {
@@ -607,7 +612,23 @@ function real_time_update() {
             let json_str = JSON.stringify(obj);
             httpPostAsync("/real_time_pos?game_id=" + game_id, json_str, nada);
         }
+    } else {
+        httpGetAsync("/real_time_pos?game_id=" + game_id, show_real_time);
     }
+}
+
+function show_real_time(in_data) {
+    let json_data;
+    try {
+        json_data = JSON.parse(in_data);
+    } catch (e) {
+        // Ignore this, it probably just means the player hasn't started yet
+        return;
+    }
+
+    received_mouse_x = json_data.x;
+    received_mouse_y = json_data.y;
+    
 }
 
 function nada() {
