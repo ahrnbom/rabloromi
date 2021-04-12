@@ -284,6 +284,8 @@ function load_state(in_data) {
     }
     prev_hand = curr_hand;
 
+    dragged_card = undefined;
+
     // Finally, redraw lower canvas
     draw_lower();
 }
@@ -291,9 +293,6 @@ function load_state(in_data) {
 function place_card(card_str, is_up, pile_id, tightness=undefined) {
     let splot = card_str.split(':');
     let card_id = splot[0];
-    if (!is_up) {
-        card_id = "back";
-    }
 
     let belongs_to = false;
     let card_description = splot[1];
@@ -308,7 +307,7 @@ function place_card(card_str, is_up, pile_id, tightness=undefined) {
     }
 
     let pile = piles[pile_id];
-    let card = {'x': pile.x + pile.cards.length*tightness + 0.002, 'y': pile.y + 0.003, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id};
+    let card = {'x': pile.x + pile.cards.length*tightness + 0.002, 'y': pile.y + 0.003, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id, 'is_hidden': !is_up};
     pile.cards.push(card);
 }
 
@@ -333,7 +332,7 @@ function on_mouse_down(e) {
             for (let i = 0; i < cards.length; ++i) {
                 let card = cards[i];
                 if ((mouse_x > card.x) && (mouse_y > card.y) && (mouse_x < card.x + card_w) && (mouse_y < card.y + card_h)) {
-                    if (card.card != "back") { // cannot drag flipped cards
+                    if (!card.is_hidden) { // cannot drag flipped cards
                         found_i = i;
                         found_key = key;
                     }
@@ -490,8 +489,6 @@ function draw_lower() {
             ctx.fillText("Your turn!", w/2, 20);
         }
     }
-    
-    
 
     if (!player_in_game) {
         ctx.textAlign = "right";
@@ -506,7 +503,7 @@ function draw_upper() {
     let ctx = upper_canvas.getContext("2d");
     ctx.clearRect(0, 0, w, h);
 
-    if (is_dragging) {
+    if (dragged_card !== undefined) {
         draw_card(ctx, dragged_card, 1.1);
     }
 
@@ -530,7 +527,11 @@ function draw_card(ctx, card, scale=1.0, no_shadow=false, extra_mark=false) {
     let card_h = card_ar*card_w;
 
     if (images_loaded) {
-        ctx.drawImage(images[card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h);
+        let the_card_ID = card_ID;
+        if (card.is_hidden) {
+            the_card_ID = "back";
+        }
+        ctx.drawImage(images[the_card_ID + ".png"], Math.round(x*w)+0.5, Math.round(y*h)+0.5, card_w, card_h);
     }
 
     ctx.shadowBlur = 0;
@@ -578,7 +579,7 @@ function button_pressed_retreat() {
 var draw_tick = 1.0/60;
 var update_tick = 1.0/60;
 var update_time = 0.0;
-var ping_time = 1.0 / (3 + Math.random()); // Between 3 and 4 per second
+var ping_time = 1.0 / (4 + Math.random()); // A few times per second, not exactly the same for everyone
 var ping_counter = 0;
 function update() {
     if (winner !== undefined) {
@@ -629,6 +630,42 @@ function show_real_time(in_data) {
     received_mouse_x = json_data.x;
     received_mouse_y = json_data.y;
     
+    if (json_data.card !== "") {
+        let from_pile = json_data.from_pile;
+        let pile = piles[from_pile];
+        if (pile === undefined) {
+            alert("Real time error: Could not find pile " + from_pile);
+        } else {
+            let card_w = card_scale;
+            let card_h = card_w*card_ar;
+            let card_x = json_data.x - card_w/2;
+            let card_y = json_data.y - card_h;
+
+            if (dragged_card !== undefined && dragged_card.card == json_data.card) {
+                dragged_card.x = card_x;
+                dragged_card.y = card_y;
+            } else {
+                let found;
+                for (let i = 0; i < pile.cards.length; ++i) {
+                    let card = pile.cards[i];
+                    if (card.card == json_data.card) {
+                        found = i;
+                    }
+                }
+                if (found !== undefined) {
+                    dragged_card = pile.cards[found];
+                    dragged_card.x = card_x;
+                    dragged_card.y = card_y;
+
+                    pile.cards.splice(found, 1);
+
+                    draw_lower();
+                } else {
+                    alert("Real time error: Could not find card " + json_data.card);
+                }
+            }
+        }
+    }
 }
 
 function nada() {
