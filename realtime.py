@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import json
 
 # card == "" means no card, just the mouse
 
@@ -20,3 +21,5 @@ class RealTimePosition:
         obj['from_pile'] = self.from_pile
         obj['x'] = self.x
         obj['y'] = self.y
+
+        return json.dumps(obj)

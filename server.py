@@ -237,6 +237,8 @@ def read_time_pos():
   if request.method == 'GET':
     if game_id in real_time_positions:
       return real_time_positions[game_id].json(), 200
+    else:
+      return "Invalid game ID", 400
   elif request.method == 'POST':
     json_data = request.get_json()
     if json_data is None:
