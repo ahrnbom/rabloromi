@@ -18,7 +18,7 @@ To install dependencies, run
 
 To start the server, run:
 
-`python server.py`
+`./run_server.sh`
 
 You can then visit the server using a web browser. It runs on port number 31416.
 
