@@ -511,7 +511,7 @@ function draw_upper() {
 
     if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
         ctx.drawImage(images["cursor.png"], Math.round(received_mouse_x*w)+0.5, Math.round(received_mouse_y*h)+0.5);
-        ctx.fillText(current_player, Math.round(received_mouse_x*w)+20.5, Math.round(received_mouse_y*h)+20.5);
+        ctx.fillText(current_player, Math.round(received_mouse_x*w)+40.5, Math.round(received_mouse_y*h)+30.5);
     }
 }
 
