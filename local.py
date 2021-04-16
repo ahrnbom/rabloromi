@@ -18,6 +18,7 @@ def main():
   player_ids = get_player_ids()
   
   game = Game(player_ids, is_local=True)
+  game.save(init=True)
   
   print("You can always type 'help' for a list of commands.")
   

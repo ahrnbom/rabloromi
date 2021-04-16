@@ -78,7 +78,7 @@ def host_game():
   skip_join = request.args.get('skip_join', type=bool, default=False)
   
   game = Game(players, game_name=game_name, skip_join=skip_join)
-  game.save()
+  game.save(init=True)
   
   return f"{game_name}", 200
 

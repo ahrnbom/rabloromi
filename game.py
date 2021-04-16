@@ -5,6 +5,7 @@ from pathlib import Path
 from random import randint
 
 from cards import Card, Deck
+from fs_cache import FSCache
 
 def validate_player_name(player_id):
   if player_id in ["true", "false", "", None, "undefined", "0"]:
@@ -174,6 +175,7 @@ def validate_chain(cards, jokers):
     cards.extend(jokers)
   return True
   
+fs_cache = FSCache()
   
 class Game:
   storage = Path('.') / 'games'
@@ -214,14 +216,14 @@ class Game:
       raise ValueError(f"Game with ID {game_id} does not exist")
     
     file_path = folder / f"{game_id}.pickle"
-    if not file_path.is_file():
+    if not fs_cache.exists(file_path):
       raise ValueError(f"Game with ID {game_id} does not exist")
     
     try:
-      with file_path.open('rb') as f:
-        game = pickle.load(f)
+      data = fs_cache.read(file_path)
+      game = pickle.loads(data)
     except:
-      raise ValueError(f"Game {game_id} is corrupt")
+      raise ValueError(f"Game {game_id} is corrupt or cannot be loaded")
     
     return game
 
@@ -264,7 +266,7 @@ class Game:
     self.cannot_retreat = False
     self.winner = None
   
-  def save(self, game_id=None):
+  def save(self, game_id=None, init=False):
     if game_id is None:
       game_id = self.name
       
@@ -277,13 +279,13 @@ class Game:
     folder.mkdir(exist_ok=True)
     
     file_path = folder / f"{game_id}.pickle"
-    with file_path.open('wb') as f:
-      pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+    data = pickle.dumps(self, protocol=pickle.HIGHEST_PROTOCOL)
+    fs_cache.write(data, file_path)
     
-    (folder / 'name.txt').write_text(self.name)
-    
-    (folder / 'players.txt').write_text('\n'.join(self.player_ids))
-    
+    if init:
+      (folder / 'name.txt').write_text(self.name)  
+      (folder / 'players.txt').write_text('\n'.join(self.player_ids))
+      
     
   def next_pile_id(self):
     if self.piles:
