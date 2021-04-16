@@ -59,5 +59,5 @@ class FSCache:
             for path in paths:
                 data = self.tmp_storage.pop(path)
                 path.write_bytes(data)
-        print(" -> Flushed files!")
+        print(f" -> Flushed files!  {datetime.now()}")
             
