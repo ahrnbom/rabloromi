@@ -1,6 +1,6 @@
-# Rablorömi for Python
+# RablorÃ¶mi for Python
 
-This is a Python implementation of a Hungarian card game called Rablrömi, or rather, my family's variant of it. The game is sometimes known as Robber's Rummy in English.
+This is a Python implementation of a Hungarian card game called RablrÃ¶mi, or rather, my family's variant of it. The game is sometimes known as Robber's Rummy in English.
 
 The idea is to implement it in Python, with a web interface in HTML/JS to allow online play, both in real time and as a correspondance game (although real time, with some kind of VOIP solution like Discord, is probably the most fun).
 
@@ -9,15 +9,18 @@ The web interface uses card designs from [this project](https://code.google.com/
 ### Dependencies
 
 1. Python 3.X
-1. Flask: `pip install flask`
 
 ### Instructions for hosting a server
+
+To install dependencies, run 
+
+`./setup.sh`
 
 To start the server, run:
 
 `python server.py`
 
-You can then visit the server using a web browser. More instructions are coming soon... Maybe.
+You can then visit the server using a web browser. It runs on port number 31416.
 
 ### Instructions for local play (for testing)
 
