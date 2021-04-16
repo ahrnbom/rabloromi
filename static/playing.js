@@ -503,13 +503,15 @@ function draw_upper() {
     let ctx = upper_canvas.getContext("2d");
     ctx.clearRect(0, 0, w, h);
 
+    ctx.font = "18px Arial";
+
     if (dragged_card !== undefined) {
         draw_card(ctx, dragged_card, 1.1);
     }
 
     if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
         ctx.drawImage(images["cursor.png"], Math.round(received_mouse_x*w)+0.5, Math.round(received_mouse_y*h)+0.5);
-        ctx.fillText(current_player, Math.round(received_mouse_x*w)+0.5, Math.round(received_mouse_y*h)+0.5);
+        ctx.fillText(current_player, Math.round(received_mouse_x*w)+20.5, Math.round(received_mouse_y*h)+20.5);
     }
 }
 
