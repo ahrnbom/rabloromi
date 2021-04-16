@@ -250,4 +250,4 @@ def read_time_pos():
 
 if __name__ == '__main__':
   unpack_files()
-  api.run(port=31416)
+  api.run(host='0.0.0.0', port=31416)
