@@ -60,6 +60,7 @@ div.buttons {
 
 button.game_button {
     margin: 10px;
+    padding: 7px;
 }
 
 canvas.game_canvas {
