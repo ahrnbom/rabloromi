@@ -635,6 +635,8 @@ function update() {
 }
 
 function real_time_update() {
+    return; // disable real time stuff for now
+    
     if (your_turn) {
         if (mouse_x !== undefined && mouse_y !== undefined) {
             let obj = {'x': mouse_x, 'y': mouse_y, 'card': "", 'from_pile': ""};
