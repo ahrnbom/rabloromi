@@ -622,7 +622,8 @@ function update() {
     if (update_time >= ping_time) {
         update_time = 0.0;
 
-        real_time_update();
+        // Real time stuff don't seem to work over the internet. Should probably used UDP for this or something
+        //real_time_update();
 
         ++ping_counter;
         if (ping_counter >= 10) {
