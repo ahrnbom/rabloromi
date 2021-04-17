@@ -28,11 +28,24 @@ function httpPostAsync(url, data, callback) {
 }
 
 window.onload = () => {
-    var url = new URL(location.href);
-    var game_id = url.searchParams.get("game_id");
-    var player_name = url.searchParams.get("player_name");
-    if (game_id && player_name) {
-        start(game_id, player_name);
+    let url = new URL(location.href);
+    let param_game_id = url.searchParams.get("game_id");
+    let param_player_name = url.searchParams.get("player_name");
+    let param_language = url.searchParams.get("lan");
+    
+    if (param_language) {
+        let keso = document.getElementById("keso_button");
+        let retr = document.getElementById("retreat_button");
+
+        switch (param_language.toLowerCase()) {
+            case "swungarian":
+                keso.innerHTML = "Kesz";
+                retr.innerHTML = "Backa";
+        }
+    }
+    
+    if (param_game_id && param_player_name) {
+        start(param_game_id, param_player_name);
     } else {
         alert("Incorrect game id or player name!");
     }
