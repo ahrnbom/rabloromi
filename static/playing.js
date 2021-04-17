@@ -64,6 +64,8 @@ var new_card;
 var winner;
 var mouse_x, mouse_y;
 var received_mouse_x, received_mouse_y;
+var smooth_mouse_x = 0.0;
+var smooth_mouse_y = 0.0;
 
 function start(_game_id, _player_name) {
     player_name = _player_name;
@@ -505,13 +507,27 @@ function draw_upper() {
 
     ctx.font = "18px Arial";
 
+    if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
+        smooth_mouse_x = 0.1 * received_mouse_x + 0.9 * smooth_mouse_x;
+        smooth_mouse_y = 0.1 * received_mouse_y + 0.9 * smooth_mouse_y;
+
+        if (dragged_card !== undefined) {
+            let card_w = card_scale;
+            let card_h = card_w*card_ar;
+            let card_x = smooth_mouse_x - card_w/2;
+            let card_y = smooth_mouse_y - card_h;
+            dragged_card.x = card_x;
+            dragged_card.y = card_y;
+        }
+    }
+
     if (dragged_card !== undefined) {
         draw_card(ctx, dragged_card, 1.1);
     }
 
     if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
-        ctx.drawImage(images["cursor.png"], Math.round(received_mouse_x*w)+0.5, Math.round(received_mouse_y*h)+0.5);
-        ctx.fillText(current_player, Math.round(received_mouse_x*w)+40.5, Math.round(received_mouse_y*h)+30.5);
+        ctx.drawImage(images["cursor.png"], Math.round(smooth_mouse_x*w)+0.5, Math.round(smooth_mouse_y*h)+0.5);
+        ctx.fillText(current_player, Math.round(smooth_mouse_x*w)+40.5, Math.round(smooth_mouse_y*h)+30.5);
     }
 }
 
@@ -582,7 +598,7 @@ function button_pressed_retreat() {
 var draw_tick = 1.0/60;
 var update_tick = 1.0/60;
 var update_time = 0.0;
-var ping_time = 1.0 / (4 + Math.random()); // A few times per second, not exactly the same for everyone
+var ping_time = 1.0 / (5 + Math.random()); // A few times per second, not exactly the same for everyone
 var ping_counter = 0;
 function update() {
     if (winner !== undefined) {
@@ -644,10 +660,7 @@ function show_real_time(in_data) {
             let card_x = json_data.x - card_w/2;
             let card_y = json_data.y - card_h;
 
-            if (dragged_card !== undefined && dragged_card.card == json_data.card) {
-                dragged_card.x = card_x;
-                dragged_card.y = card_y;
-            } else {
+            if (dragged_card === undefined || dragged_card.card != json_data.card) {
                 let found;
                 for (let i = 0; i < pile.cards.length; ++i) {
                     let card = pile.cards[i];
