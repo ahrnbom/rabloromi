@@ -611,7 +611,7 @@ function button_pressed_retreat() {
 var draw_tick = 1.0/60;
 var update_tick = 1.0/60;
 var update_time = 0.0;
-var ping_time = 1.0 / (5 + Math.random()); // A few times per second, not exactly the same for everyone
+var ping_time = 1.0 / (3 + Math.random()); // A few times per second, not exactly the same for everyone
 var ping_counter = 0;
 function update() {
     if (winner !== undefined) {
@@ -635,7 +635,6 @@ function update() {
 }
 
 function real_time_update() {
-    return; // disable real time stuff for now
     
     if (your_turn) {
         if (mouse_x !== undefined && mouse_y !== undefined) {
