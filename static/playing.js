@@ -323,7 +323,8 @@ function load_state(in_data) {
     }
 
     // Finally check if last action changed to some card movement/placement
-    if (!arrayEquals(prev_last_action, last_action)) {
+    dragged_card = undefined;
+    if (!your_turn && !arrayEquals(prev_last_action, last_action)) {
         if (["played", "moved", "taken"].includes(last_action[0])) {
             let moving_card_id = last_action[1].split(":")[0];
             let moving_from = last_action[3];
@@ -355,8 +356,6 @@ function load_state(in_data) {
             }
         }
     }
-
-    dragged_card = undefined;
 
     // Finally, redraw lower canvas
     draw_lower();
@@ -586,12 +585,15 @@ function draw_upper() {
     ctx.font = "18px Arial";
 
     if ((!your_turn) && dragged_card !== undefined) {
-        dragged_card.x = 0.9 * dragged_card.x + 0.1 * dragged_card.goal_x;
-        dragged_card.y = 0.9 * dragged_card.y + 0.1 * dragged_card.gaol_y;
+        
+        dragged_card.x = 0.85 * dragged_card.x + 0.15 * dragged_card.goal_x;
+        dragged_card.y = 0.85 * dragged_card.y + 0.15 * dragged_card.goal_y;
     
-        if (dist2D(dragged_card.x, dragged_card.y, dragged_card.goal_x, dragged_card.goal_y) < 0.00001) {
+        if (dist2D(dragged_card.x, dragged_card.y, dragged_card.goal_x, dragged_card.goal_y) < 0.001) {
+            
             piles[dragged_card.goal_pile].cards.push(dragged_card);
             dragged_card = undefined;
+            draw_lower();
         }
     }
 
