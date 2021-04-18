@@ -265,6 +265,7 @@ class Game:
     self.name = game_name
     self.cannot_retreat = False
     self.winner = None
+    self.last_action = []
   
   def save(self, game_id=None, init=False):
     if game_id is None:
@@ -336,6 +337,7 @@ class Game:
     to_pile.add(card)
     self.hands[self.turn].remove(card)
     assert(card.owner == self.turn)
+    self.last_action = ['played', str(card), to_id, self.turn]
 
     # Check if the player should now be considered to be in the game
     if not (self.turn in self.players_in_game):
@@ -368,6 +370,7 @@ class Game:
     
     from_pile.remove(card)
     to_pile.add(card)
+    self.last_action = ["moved", str(card), to_id, from_id]
   
   def finish(self):
     for pile_id, pile in self.piles.items():
@@ -409,9 +412,15 @@ class Game:
     if len(self.hands[self.turn]) == 0:
       self.winner = self.turn
 
+
+    if card is not None:
+      self.last_action = ["drew", str(card), self.turn]
+    else:
+      self.last_action = ["finished", self.turn]
+
     self.turn = self.next_turn()
     self.save_initial_state()
-    
+
     return True, card
   
   def take_back(self, card, from_id):
@@ -421,6 +430,8 @@ class Game:
     pile = self.piles[from_id]
     pile.cards.remove(card)
     self.hands[self.turn].append(card)
+
+    self.last_action = ["take", str(card), from_id, self.turn]
 
   def retreat(self):
     if self.cannot_retreat:
@@ -445,6 +456,8 @@ class Game:
       remaining_cards.extend(pile.cards)
     
     self.restore_initial_state(remaining_cards)
+
+    self.last_action = ["retreat", self.turn]
 
     return True
     
@@ -481,11 +494,13 @@ class Game:
       obj['piles'][pile_id] = pile_obj
     
     obj['turn'] = self.turn
-    
+
+    obj['last_action'] = self.last_action
+
     indent = None
     if self.is_local:
       indent = 2
-    
+
     return json.dumps(obj, indent=indent)
     
   def save_initial_state(self):

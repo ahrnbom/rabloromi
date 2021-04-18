@@ -72,7 +72,7 @@ var pile_columns = 5;
 var pile_width = 1/pile_columns;
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
-var prev_hand;
+var last_action;
 var new_card;
 var winner;
 var mouse_x, mouse_y;
@@ -164,6 +164,8 @@ function load_state(in_data) {
     if (game_data.winner) {
         winner = game_data.winner;
     }
+
+    last_action = game_data.last_action;
 
     // Adjust number of columns if necessary
     let pile_count = 0;
@@ -277,27 +279,24 @@ function load_state(in_data) {
     piles[pile_id] = pile;
 
     // Finally, see if you just got a new card
-    let curr_hand = piles[player_name].cards;
     new_card = undefined;
-    if (prev_hand !== undefined) {
-        for (let i = 0; i < curr_hand.length; ++i) {
-            let curr_card = curr_hand[i];
-
-            let found = false;
-            for (let j = 0; j < prev_hand.length; ++j) {
-                let prev_card = prev_hand[j];
-
-                if (curr_card.card == prev_card.card) {
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                new_card = curr_card;
+    if (last_action.length > 0 && last_action[0] == "drew" && last_action[2] == player_name) {
+        
+        let drawn_card = last_action[1].split(':')[0];
+        
+        // Search for that card in your hand
+        let found = undefined;
+        for (let i = 0; i < piles[player_name].cards.length; ++i) {
+            let some_card = piles[player_name].cards[i];
+            if (some_card.card == drawn_card) {
+                found = some_card;
             }
         }
+
+        if (found !== undefined) {
+            new_card = found;
+        }
     }
-    prev_hand = curr_hand;
 
     dragged_card = undefined;
 
