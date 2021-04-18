@@ -48,7 +48,7 @@ function host_game() {
             names.push(name);
     }
 
-    let skip_join = document.getElementById("skip_join_rule").value;
+    let skip_join = document.getElementById("skip_join_rule").checked;
 
     if (ok) {
         httpGetAsync("host?players="+String(names) + "&skip_join=" + skip_join, host_response);
