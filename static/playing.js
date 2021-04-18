@@ -511,6 +511,12 @@ function draw_lower() {
 
     ctx.textAlign = "left";
 
+    if (your_turn) {
+        ctx.strokeStyle = "#00FF00";
+        ctx.lineWidth = 6;
+        ctx.strokeRect(0, 0, w, h);
+    }
+
 }
 
 function draw_upper() {
