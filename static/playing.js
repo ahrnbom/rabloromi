@@ -69,7 +69,7 @@ const card_ar = 1.55;
 var piles;
 var hand_size;
 var pile_columns = 5;
-var pile_width = 1/pile_columns;
+var pile_width = 1/(pile_columns + 0.05);
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
 var last_action;
@@ -174,11 +174,11 @@ function load_state(in_data) {
     }
     if (pile_count > 14) {
         pile_columns = 6;
-        pile_width = 1/pile_columns;
+        pile_width = 1/(pile_columns + 0.05);
     } 
     if (pile_count > 17) {
         pile_columns = 7;
-        pile_width = 1/pile_columns;
+        pile_width = 1/(pile_columns + 0.05);
     }
         
     piles = {}; // Needs to be reset here to make sure retreat works in edge cases
@@ -260,7 +260,7 @@ function load_state(in_data) {
             highest_pile_id = pile_id;
         }
 
-        let x = ((pile_id-1)%pile_columns) * pile_width;
+        let x = ((pile_id-1)%pile_columns) * pile_width + 0.005;
         let y = (Math.floor((pile_id-1)/pile_columns) + 0.2) * (pile_height + 0.01) + 0.001;
         let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': pile_ok, cards: []};
         piles[pile_id] = pile;
@@ -273,7 +273,7 @@ function load_state(in_data) {
 
     // Finally, create the final always empty pile
     let pile_id = highest_pile_id + 1;
-    let x = ((pile_id-1)%pile_columns) * pile_width;
+    let x = ((pile_id-1)%pile_columns) * pile_width + 0.005;
     let y = (Math.floor((pile_id-1)/pile_columns) + 0.2) * (pile_height + 0.01) + 0.001;
     let pile = {'x': x + 0.001, 'y': y, 'w': pile_width - 0.005, 'h': pile_height + 0.005, 'is_hand': false, 'is_ok': true, cards: []};
     piles[pile_id] = pile;
