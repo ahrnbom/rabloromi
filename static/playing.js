@@ -627,9 +627,6 @@ function update() {
     if (update_time >= ping_time) {
         update_time = 0.0;
 
-        // Real time stuff don't seem to work over the internet. Should probably used UDP for this or something
-        //real_time_update();
-
         ++ping_counter;
         if (ping_counter >= 10) {
             ping_counter = 0;
@@ -640,73 +637,6 @@ function update() {
     }
 }
 
-function real_time_update() {
-    
-    if (your_turn) {
-        if (mouse_x !== undefined && mouse_y !== undefined) {
-            let obj = {'x': mouse_x, 'y': mouse_y, 'card': "", 'from_pile': ""};
-            if (dragged_card !== undefined) {
-                obj.card = dragged_card.card;
-                obj.from_pile = dragged_card.comes_from;
-            }
-            let json_str = JSON.stringify(obj);
-            httpPostAsync("/real_time_pos?game_id=" + game_id, json_str, nada);
-        }
-    } else {
-        httpGetAsync("/real_time_pos?game_id=" + game_id, show_real_time);
-    }
-}
-
-function show_real_time(in_data) {
-    let json_data;
-    try {
-        json_data = JSON.parse(in_data);
-    } catch (e) {
-        // Ignore this, it probably just means the player hasn't started yet
-        return;
-    }
-
-    received_mouse_x = json_data.x;
-    received_mouse_y = json_data.y;
-    
-    if (json_data.card !== "") {
-        let from_pile = json_data.from_pile;
-        let pile = piles[from_pile];
-        if (pile === undefined) {
-            alert("Real time error: Could not find pile " + from_pile);
-        } else {
-            let card_w = card_scale;
-            let card_h = card_w*card_ar;
-            let card_x = json_data.x - card_w/2;
-            let card_y = json_data.y - card_h;
-
-            if (dragged_card === undefined || dragged_card.card != json_data.card) {
-                let found;
-                for (let i = 0; i < pile.cards.length; ++i) {
-                    let card = pile.cards[i];
-                    if (card.card == json_data.card) {
-                        found = i;
-                    }
-                }
-                if (found !== undefined) {
-                    dragged_card = pile.cards[found];
-                    dragged_card.x = card_x;
-                    dragged_card.y = card_y;
-
-                    pile.cards.splice(found, 1);
-
-                    draw_lower();
-                } else {
-                    alert("Real time error: Could not find card " + json_data.card);
-                }
-            }
-        }
-    }
-}
-
-function nada() {
-    // nothing
-}
 
 // These take milliseconds
 setInterval(draw_upper, 1000*draw_tick);

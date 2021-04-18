@@ -5,7 +5,6 @@ from random import choice
 
 from game import Game
 from unpack import unpack_files
-from realtime import RealTimePosition
 
 api = Flask(__name__)
 
@@ -226,27 +225,6 @@ def keso():
 
   game.save(game_id)
   return "ok", 200
-
-@api.route("/real_time_pos", methods=['GET', 'POST'])
-def read_time_pos():
-  game_id = request.args.get('game_id', type=str, default=None)
-
-  if game_id is None:
-    return "No game ID provided", 400
-  
-  if request.method == 'GET':
-    if game_id in real_time_positions:
-      return real_time_positions[game_id].json(), 200
-    else:
-      return "", 200
-  elif request.method == 'POST':
-    json_data = request.get_json()
-    if json_data is None:
-      return "No JSON provided", 400
-    real_time_positions[game_id] = RealTimePosition.from_json(json_data)
-    return "ok", 200
-  else:
-    return "What is this I don't even", 400
 
 if __name__ == '__main__':
   unpack_files()
