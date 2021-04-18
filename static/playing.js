@@ -73,6 +73,7 @@ var pile_width = 1/(pile_columns + 0.05);
 var pile_height = card_ar*card_scale*2 + 0.01;
 var cards_in_deck;
 var last_action;
+var prev_last_action;
 var new_card;
 var winner;
 var mouse_x, mouse_y;
@@ -158,6 +159,28 @@ function load_images(urls) {
     }
 }
 
+function dist2D(x1, y1, x2, y2) {
+    let dx = x1 - x2;
+    let dy = y1 - y2;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+function arrayEquals(a, b) {
+    if (a === undefined || b === undefined) {
+        return false;
+    }
+
+    if (a.length == b.length) {
+        for (let i = 0; i < a.length; ++i) {
+            if (a[i] != b[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 function load_state(in_data) {
     game_data = JSON.parse(in_data);
 
@@ -165,6 +188,7 @@ function load_state(in_data) {
         winner = game_data.winner;
     }
 
+    prev_last_action = last_action;
     last_action = game_data.last_action;
 
     // Adjust number of columns if necessary
@@ -298,6 +322,40 @@ function load_state(in_data) {
         }
     }
 
+    // Finally check if last action changed to some card movement/placement
+    if (!arrayEquals(prev_last_action, last_action)) {
+        if (["played", "moved", "taken"].includes(last_action[0])) {
+            let moving_card_id = last_action[1].split(":")[0];
+            let moving_from = last_action[3];
+            let moving_to = last_action[2];
+
+            // Card has already been placed, so let's take it back
+            let card_to_move = undefined;
+            let found_i = -1;
+            for (let i = 0; i < piles[moving_to].cards.length; ++i) {
+                let some_card = piles[moving_to].cards[i];
+                if (some_card.card == moving_card_id) {
+                    card_to_move = some_card;
+                    found_i = i;
+                }
+            }
+
+            if (card_to_move !== undefined) {
+                piles[moving_to].cards.splice(found_i, 1);
+                dragged_card = card_to_move;
+                dragged_card.goal_x = dragged_card.x;
+                dragged_card.goal_y = dragged_card.y;
+                dragged_card.goal_pile = moving_to;
+
+                // To find the initial position, temporarily place a placeholder card in the from pile
+                let tmp_card = place_card("tmp:tmp", true, moving_from);
+                piles[moving_from].cards.splice(piles[moving_from].cards.length - 1, 1);
+                dragged_card.x = tmp_card.x;
+                dragged_card.y = tmp_card.y;
+            }
+        }
+    }
+
     dragged_card = undefined;
 
     // Finally, redraw lower canvas
@@ -323,6 +381,8 @@ function place_card(card_str, is_up, pile_id, tightness=undefined) {
     let pile = piles[pile_id];
     let card = {'x': pile.x + pile.cards.length*tightness + 0.002, 'y': pile.y + 0.003, 'card': card_id, 'belongs_to': belongs_to, 'comes_from': pile_id, 'is_hidden': !is_up};
     pile.cards.push(card);
+
+    return card;
 }
 
 function on_mouse_down(e) {
@@ -525,27 +585,18 @@ function draw_upper() {
 
     ctx.font = "18px Arial";
 
-    if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
-        smooth_mouse_x = 0.1 * received_mouse_x + 0.9 * smooth_mouse_x;
-        smooth_mouse_y = 0.1 * received_mouse_y + 0.9 * smooth_mouse_y;
-
-        if (dragged_card !== undefined) {
-            let card_w = card_scale;
-            let card_h = card_w*card_ar;
-            let card_x = smooth_mouse_x - card_w/2;
-            let card_y = smooth_mouse_y - card_h;
-            dragged_card.x = card_x;
-            dragged_card.y = card_y;
+    if ((!your_turn) && dragged_card !== undefined) {
+        dragged_card.x = 0.9 * dragged_card.x + 0.1 * dragged_card.goal_x;
+        dragged_card.y = 0.9 * dragged_card.y + 0.1 * dragged_card.gaol_y;
+    
+        if (dist2D(dragged_card.x, dragged_card.y, dragged_card.goal_x, dragged_card.goal_y) < 0.00001) {
+            piles[dragged_card.goal_pile].cards.push(dragged_card);
+            dragged_card = undefined;
         }
     }
 
     if (dragged_card !== undefined) {
         draw_card(ctx, dragged_card, 1.1);
-    }
-
-    if (received_mouse_x !== undefined && received_mouse_y !== undefined && !your_turn) {
-        ctx.drawImage(images["cursor.png"], Math.round(smooth_mouse_x*w)+0.5, Math.round(smooth_mouse_y*h)+0.5);
-        ctx.fillText(current_player, Math.round(smooth_mouse_x*w)+40.5, Math.round(smooth_mouse_y*h)+30.5);
     }
 }
 

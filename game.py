@@ -431,7 +431,7 @@ class Game:
     pile.cards.remove(card)
     self.hands[self.turn].append(card)
 
-    self.last_action = ["take", str(card), from_id, self.turn]
+    self.last_action = ["taken", str(card), self.turn, from_id]
 
   def retreat(self):
     if self.cannot_retreat:
